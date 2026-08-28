@@ -316,7 +316,13 @@ router.get("/production/:mineId/history", (req, res) => {
 
 router.get("/production/:mineId/forecast", (req, res) => {
   const { mineId } = GetProductionForecastParams.parse(req.params);
-  const { horizon } = GetProductionForecastQueryParams.parse(req.query);
+  const { horizon } = GetProductionForecastQueryParams.parse({
+    ...req.query,
+    horizon:
+      typeof req.query.horizon === "string"
+        ? Number(req.query.horizon)
+        : req.query.horizon,
+  });
   const mine = findMine(mineId);
   if (!mine) {
     res.status(404).json({ error: "Mine not found" });
@@ -327,7 +333,13 @@ router.get("/production/:mineId/forecast", (req, res) => {
 
 router.get("/recommendations/:mineId", (req, res) => {
   const { mineId } = GetMineRecommendationParams.parse(req.params);
-  const { horizon } = GetMineRecommendationQueryParams.parse(req.query);
+  const { horizon } = GetMineRecommendationQueryParams.parse({
+    ...req.query,
+    horizon:
+      typeof req.query.horizon === "string"
+        ? Number(req.query.horizon)
+        : req.query.horizon,
+  });
   const mine = findMine(mineId);
   if (!mine) {
     res.status(404).json({ error: "Mine not found" });

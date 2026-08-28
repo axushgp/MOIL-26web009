@@ -1,0 +1,1 @@
+- [API query coercion](api-query-coercion.md) — normalize numeric URL query values before generated enum validation.
