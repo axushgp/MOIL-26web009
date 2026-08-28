@@ -9,7 +9,8 @@ An operations console for exploring manganese reserve signals, mine-level produc
 - `pnpm run typecheck` — full typecheck across all packages
 - `PORT=26001 BASE_PATH=/ pnpm --filter @workspace/moil-mrip run dev` — run the frontend alone
 - `PORT=8080 pnpm --filter @workspace/api-server run dev` — run the API alone
-- The dashboard currently uses the API's in-memory demo dataset; no credentials are required to preview it.
+- `pnpm run smoke:mrip` — check the API contract while the API is running
+- The dashboard currently uses the API's in-memory synthetic demo dataset; no credentials are required to preview it.
 - The API listens on port 8080 and the Vite frontend listens on port 26001 in development. Vite proxies `/api` requests to the API.
 
 ## Stack
@@ -27,6 +28,8 @@ An operations console for exploring manganese reserve signals, mine-level produc
 - `lib/api-client-react/` — generated React Query client
 - `lib/api-zod/` — generated server-side validation schemas
 - `attached_assets/` — the supplied MOIL MRIP build specification and guide
+- `DATA_SOURCES.md` — current connected-data posture and scientific-run checklist
+- `DEMO_SCRIPT.md` — the recommended evaluation narrative and honest status line
 
 ## Architecture decisions
 
@@ -46,7 +49,7 @@ No project-specific preferences recorded yet.
 
 - Vite requires both `PORT` and `BASE_PATH`; the Replit workflow supplies `PORT=26001` and `BASE_PATH=/`.
 - The API requires `PORT`; the combined workflow supplies `PORT=8080`.
-- The project specification requires real external datasets and credentials for the full science pipeline; those are not present in this imported preview setup.
+- The project specification requires real external datasets and credentials for the full science pipeline; those are not present in this imported preview setup. See `DATA_SOURCES.md`.
 
 ## Pointers
 

@@ -14,6 +14,7 @@ import {
   GetReserveValidationResponse,
   ListMinesResponse,
 } from "@workspace/api-zod";
+import { recommend } from "../lib/rules-engine";
 
 const router: IRouter = Router();
 
@@ -225,7 +226,7 @@ function forecastFor(mine: MineRecord, horizon: number) {
     dominant_driver: mine.dominant_driver,
     local_reserve_confidence: mine.reserve_confidence,
     model_version: "forecast-xgb-v0.3",
-    provenance: "Calibrated synthetic operations + reserve-grid feature",
+    provenance: "Synthetic demo operations + reserve-grid feature",
   };
 }
 
@@ -253,7 +254,7 @@ function historyFor(mine: MineRecord, days: number) {
       downtime_hours: Number(downtime.toFixed(1)),
       rainfall_mm: Number(rainfall.toFixed(1)),
       blast_delay_flag: blastDelay,
-      data_provenance: "synthetic operations + ERA5 rainfall pattern",
+      data_provenance: "synthetic_demo_operations + synthetic_demo_weather",
     };
   });
 }
@@ -333,24 +334,7 @@ router.get("/recommendations/:mineId", (req, res) => {
     return;
   }
   const forecast = forecastFor(mine, horizon);
-  const recommendation =
-    forecast.dominant_driver === "Equipment downtime"
-      ? {
-          action: "Redeploy standby equipment",
-          detail: "Review the nearest underutilised fleet and stage one compatible unit before the next maintenance window.",
-          driver: "Equipment downtime",
-        }
-      : forecast.dominant_driver === "Rainfall"
-        ? {
-            action: "Advance stockpiling",
-            detail: "Build a controlled surface stockpile ahead of the monsoon-sensitive production window.",
-            driver: "Rainfall",
-          }
-        : {
-            action: "Redirect development toward priority zone",
-            detail: "Prioritise drilling and development toward the nearest high-confidence unexplored zone before committing new capacity.",
-            driver: "Reserve confidence",
-          };
+  const recommendation = recommend(forecast);
   res.json(
     GetMineRecommendationResponse.parse({
       mine_id: mine.mine_id,
