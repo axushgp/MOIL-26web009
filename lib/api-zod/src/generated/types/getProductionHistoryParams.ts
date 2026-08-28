@@ -6,6 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
-}
+export type GetProductionHistoryParams = {
+/**
+ * @minimum 30
+ * @maximum 365
+ */
+days?: number;
+};

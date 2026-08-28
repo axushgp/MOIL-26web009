@@ -6,6 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
-}
+export type GetReserveHeatmapParams = {
+/**
+ * Optional min longitude,min latitude,max longitude,max latitude
+ */
+bbox?: string;
+};

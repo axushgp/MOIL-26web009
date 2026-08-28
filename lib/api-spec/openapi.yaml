@@ -3,13 +3,21 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: MOIL Reserve Intelligence Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: mines
+    description: Mine and planning operations
+  - name: reserves
+    description: Reserve mapping and validation
+  - name: production
+    description: Production history and forecast
+  - name: recommendations
+    description: Auditable corrective recommendations
 paths:
   /healthz:
     get:
@@ -24,6 +32,135 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /mines:
+    get:
+      operationId: listMines
+      tags: [mines]
+      summary: List MOIL mines
+      responses:
+        "200":
+          description: Mine inventory
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Mine"
+  /reserves/heatmap:
+    get:
+      operationId: getReserveHeatmap
+      tags: [reserves]
+      summary: Get reserve probability points
+      parameters:
+        - name: bbox
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Optional min longitude,min latitude,max longitude,max latitude
+      responses:
+        "200":
+          description: GeoJSON reserve confidence points
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HeatmapResponse"
+  /reserves/validation:
+    get:
+      operationId: getReserveValidation
+      tags: [reserves]
+      summary: Get leave-one-out reserve validation
+      responses:
+        "200":
+          description: Validation summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationResponse"
+  /production/{mineId}/history:
+    get:
+      operationId: getProductionHistory
+      tags: [production]
+      summary: Get recent production history
+      parameters:
+        - name: mineId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: days
+          in: query
+          required: false
+          schema:
+            type: number
+            default: 90
+            minimum: 30
+            maximum: 365
+      responses:
+        "200":
+          description: Daily production history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductionHistory"
+        "404":
+          description: Mine not found
+  /production/{mineId}/forecast:
+    get:
+      operationId: getProductionForecast
+      tags: [production]
+      summary: Get mine shortfall forecast
+      parameters:
+        - name: mineId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: horizon
+          in: query
+          required: false
+          schema:
+            type: number
+            default: 30
+            enum: [30, 60, 90]
+      responses:
+        "200":
+          description: Forecast with cross-module reserve confidence feature
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductionForecast"
+        "404":
+          description: Mine not found
+  /recommendations/{mineId}:
+    get:
+      operationId: getMineRecommendation
+      tags: [recommendations]
+      summary: Get an auditable corrective recommendation
+      parameters:
+        - name: mineId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: horizon
+          in: query
+          required: false
+          schema:
+            type: number
+            default: 30
+            enum: [30, 60, 90]
+      responses:
+        "200":
+          description: Rule-based action and phrased explanation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Recommendation"
+        "404":
+          description: Mine not found
 components:
   schemas:
     HealthStatus:
@@ -33,4 +170,88 @@ components:
           type: string
       required:
         - status
+    Mine:
+      type: object
+      required: [mine_id, name, district, mine_type, coordinate_status, latitude, longitude]
+      properties:
+        mine_id: { type: string }
+        name: { type: string }
+        district: { type: string }
+        mine_type: { type: string }
+        coordinate_status: { type: string }
+        latitude: { type: number }
+        longitude: { type: number }
+        depth_m: { type: ["number", "null"] }
+        reserve_confidence: { type: number }
+        shortfall_probability: { type: number }
+        dominant_driver: { type: string }
+    ReservePoint:
+      type: object
+      required: [latitude, longitude, reserve_probability, spectral_score, structural_score, zone_type]
+      properties:
+        latitude: { type: number }
+        longitude: { type: number }
+        reserve_probability: { type: number }
+        spectral_score: { type: number }
+        structural_score: { type: number }
+        zone_type: { type: string }
+    HeatmapResponse:
+      type: object
+      required: [points, model_version, computed_at]
+      properties:
+        points:
+          type: array
+          items: { $ref: "#/components/schemas/ReservePoint" }
+        model_version: { type: string }
+        computed_at: { type: string }
+    ValidationMine:
+      type: object
+      required: [mine_id, percentile]
+      properties:
+        mine_id: { type: string }
+        percentile: { type: number }
+    ValidationResponse:
+      type: object
+      required: [confirmed_mines_checked, avg_percentile_rank, per_mine, method]
+      properties:
+        confirmed_mines_checked: { type: number }
+        avg_percentile_rank: { type: number }
+        per_mine:
+          type: array
+          items: { $ref: "#/components/schemas/ValidationMine" }
+        method: { type: string }
+    ProductionHistory:
+      type: object
+      required: [date, planned_tonnage, actual_tonnage, downtime_hours, rainfall_mm, blast_delay_flag, data_provenance]
+      properties:
+        date: { type: string }
+        planned_tonnage: { type: number }
+        actual_tonnage: { type: number }
+        downtime_hours: { type: number }
+        rainfall_mm: { type: number }
+        blast_delay_flag: { type: boolean }
+        data_provenance: { type: string }
+    ProductionForecast:
+      type: object
+      required: [mine_id, horizon_days, predicted_tonnage, planned_tonnage, shortfall_probability, dominant_driver, local_reserve_confidence, model_version, provenance]
+      properties:
+        mine_id: { type: string }
+        horizon_days: { type: number }
+        predicted_tonnage: { type: number }
+        planned_tonnage: { type: number }
+        shortfall_probability: { type: number }
+        dominant_driver: { type: string }
+        local_reserve_confidence: { type: number }
+        model_version: { type: string }
+        provenance: { type: string }
+    Recommendation:
+      type: object
+      required: [mine_id, action, detail, explanation_text, driver, generated_at]
+      properties:
+        mine_id: { type: string }
+        action: { type: string }
+        detail: { type: string }
+        explanation_text: { type: string }
+        driver: { type: string }
+        generated_at: { type: string }
 

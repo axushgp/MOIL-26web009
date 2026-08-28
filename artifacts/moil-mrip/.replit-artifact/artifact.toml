@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "MOIL Reserve Intelligence Platform"
+description = "An integrated exploration and production planning console for MOIL that visualizes manganese reserve confidence, mine-level shortfall risk, and auditable corrective recommendations across the Sausar Group belt."
+version = "1.0.0"
+id = "artifacts/moil-mrip"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 26001
+
+[services.development]
+run = "pnpm --filter @workspace/moil-mrip run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/moil-mrip", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/moil-mrip/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "26001"
+BASE_PATH = "/"
