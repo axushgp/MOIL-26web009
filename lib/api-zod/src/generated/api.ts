@@ -28,7 +28,7 @@ export const ListMinesResponseItem = zod.object({
   "coordinate_status": zod.string(),
   "latitude": zod.number(),
   "longitude": zod.number(),
-  "depth_m": zod.int().nullish(),
+  "depth_m": zod.number().nullish(),
   "reserve_confidence": zod.number().optional(),
   "shortfall_probability": zod.number().optional(),
   "dominant_driver": zod.string().optional()
