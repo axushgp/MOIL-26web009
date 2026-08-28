@@ -1,44 +1,52 @@
-# [Project name]
+# MOIL Reserve Intelligence Platform
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+An operations console for exploring manganese reserve signals, mine-level production risk, and auditable planning recommendations across the Sausar Group belt.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm install --frozen-lockfile` — install the workspace dependencies
+- `pnpm run dev` — start the combined Replit workflow (frontend + API)
 - `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `PORT=26001 BASE_PATH=/ pnpm --filter @workspace/moil-mrip run dev` — run the frontend alone
+- `PORT=8080 pnpm --filter @workspace/api-server run dev` — run the API alone
+- The dashboard currently uses the API's in-memory demo dataset; no credentials are required to preview it.
+- The API listens on port 8080 and the Vite frontend listens on port 26001 in development. Vite proxies `/api` requests to the API.
 
 ## Stack
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- pnpm workspaces, Node.js 20, TypeScript 5.9
+- Frontend: React + Vite + Tailwind CSS + Recharts
+- API: Express 5 with generated Zod contracts
+- Shared API contracts: OpenAPI + Orval
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/moil-mrip/` — dashboard frontend and Vite configuration
+- `artifacts/api-server/` — Express API and MOIL demo routes
+- `lib/api-spec/openapi.yaml` — API contract source
+- `lib/api-client-react/` — generated React Query client
+- `lib/api-zod/` — generated server-side validation schemas
+- `attached_assets/` — the supplied MOIL MRIP build specification and guide
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Keep the imported pnpm workspace structure; do not migrate the project to a different stack.
+- Use a combined development workflow because the frontend and API are separate workspace packages but are needed together for the dashboard preview.
+- Keep `/api` as the stable browser-facing API prefix; Vite proxies it to the local API service during development.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+The current MVP dashboard provides a reserve-surface view, mine watchlist and filters, validation evidence, production history and forecast panels, and deterministic recommendation output with provenance labels.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+No project-specific preferences recorded yet.
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Vite requires both `PORT` and `BASE_PATH`; the Replit workflow supplies `PORT=26001` and `BASE_PATH=/`.
+- The API requires `PORT`; the combined workflow supplies `PORT=8080`.
+- The project specification requires real external datasets and credentials for the full science pipeline; those are not present in this imported preview setup.
 
 ## Pointers
 
