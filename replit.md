@@ -10,7 +10,7 @@ An operations console for exploring manganese reserve signals, mine-level produc
 - `PORT=26001 BASE_PATH=/ pnpm --filter @workspace/moil-mrip run dev` — run the frontend alone
 - `PORT=8080 pnpm --filter @workspace/api-server run dev` — run the API alone
 - `pnpm run smoke:mrip` — check the API contract while the API is running
-- The dashboard currently uses a PostgreSQL-backed synthetic preview dataset; the API seeds the development tables on first request and no credentials are required to preview it.
+- The dashboard currently uses a PostgreSQL-backed synthetic preview dataset; the development schema is applied by the post-merge setup (`pnpm --filter @workspace/db run push`), then the API seeds the tables on first request. No external credentials are required to preview it.
 - The API listens on port 8080 and the Vite frontend listens on port 26001 in development. Vite proxies `/api` requests to the API.
 
 ## Stack
