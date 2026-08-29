@@ -10,7 +10,7 @@ An operations console for exploring manganese reserve signals, mine-level produc
 - `PORT=26001 BASE_PATH=/ pnpm --filter @workspace/moil-mrip run dev` — run the frontend alone
 - `PORT=8080 pnpm --filter @workspace/api-server run dev` — run the API alone
 - `pnpm run smoke:mrip` — check the API contract while the API is running
-- The dashboard currently uses the API's in-memory synthetic demo dataset; no credentials are required to preview it.
+- The dashboard currently uses a PostgreSQL-backed synthetic preview dataset; the API seeds the development tables on first request and no credentials are required to preview it.
 - The API listens on port 8080 and the Vite frontend listens on port 26001 in development. Vite proxies `/api` requests to the API.
 
 ## Stack
@@ -49,6 +49,7 @@ No project-specific preferences recorded yet.
 
 - Vite requires both `PORT` and `BASE_PATH`; the Replit workflow supplies `PORT=26001` and `BASE_PATH=/`.
 - The API requires `PORT`; the combined workflow supplies `PORT=8080`.
+- MRIP persistence uses explicit latitude/longitude columns because the provisioned development database does not provide PostGIS. Forecasts and recommendations retain model version and provenance for auditability.
 - The project specification requires real external datasets and credentials for the full science pipeline; those are not present in this imported preview setup. See `DATA_SOURCES.md`.
 
 ## Pointers
