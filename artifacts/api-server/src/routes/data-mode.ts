@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import {
-  DataModeRequest,
-  DataModeResponse,
+  GetDataModeResponse,
+  SetDataModeBody,
 } from "@workspace/api-zod";
 import {
   getDataMode,
@@ -11,13 +11,13 @@ import {
 const router: IRouter = Router();
 
 router.get("/data-mode", (_req, res) => {
-  res.json(DataModeResponse.parse(getDataMode()));
+  res.json(GetDataModeResponse.parse(getDataMode()));
 });
 
 router.put("/data-mode", (req, res, next) => {
   try {
-    const request = DataModeRequest.parse(req.body);
-    res.json(DataModeResponse.parse(setDataMode(request)));
+    const request = SetDataModeBody.parse(req.body);
+    res.json(GetDataModeResponse.parse(setDataMode(request)));
   } catch (error) {
     next(error);
   }

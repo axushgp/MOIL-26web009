@@ -14,6 +14,9 @@ import {
   getGetMineRecommendationQueryKey,
   getGetProductionForecastQueryKey,
   getGetProductionHistoryQueryKey,
+  getGetReserveHeatmapQueryKey,
+  getGetReserveValidationQueryKey,
+  getListMinesQueryKey,
   useGetDataMode,
   useGetMineRecommendation,
   useGetProductionForecast,
@@ -202,9 +205,9 @@ function Home() {
   const dataModeQuery = useGetDataMode();
   const dataModeMutation = useSetDataMode();
   const isSynthetic = (dataModeQuery.data?.mode || 'synthetic') === 'synthetic';
-  const minesQuery = useListMines({ query: { enabled: isSynthetic } });
-  const heatmapQuery = useGetReserveHeatmap(undefined, { query: { enabled: isSynthetic } });
-  const validationQuery = useGetReserveValidation({ query: { enabled: isSynthetic } });
+  const minesQuery = useListMines({ query: { enabled: isSynthetic, queryKey: getListMinesQueryKey() } });
+  const heatmapQuery = useGetReserveHeatmap(undefined, { query: { enabled: isSynthetic, queryKey: getGetReserveHeatmapQueryKey() } });
+  const validationQuery = useGetReserveValidation({ query: { enabled: isSynthetic, queryKey: getGetReserveValidationQueryKey() } });
   const mines = isSynthetic ? minesQuery.data || [] : [];
   const selectedMine = useMemo(() => mines.find((mine) => mine.mine_id === selectedId) || mines[0], [mines, selectedId]);
   const activeId = selectedMine?.mine_id || '';

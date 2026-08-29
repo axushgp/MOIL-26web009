@@ -2,8 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import {
-  DataModeResponse,
-  DataModeRequest,
+  GetDataModeResponse,
 } from "@workspace/api-zod";
 
 type DataMode = "synthetic" | "live";
@@ -85,7 +84,7 @@ export function getDataMode(): DataModeResponseValue {
   ];
 
   const liveReady = false;
-  return DataModeResponse.parse({
+  return GetDataModeResponse.parse({
     mode: activeMode,
     live_ready: liveReady,
     message:
