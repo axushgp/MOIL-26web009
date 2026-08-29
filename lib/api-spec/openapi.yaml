@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: data-mode
+    description: Synthetic preview and live-source readiness
   - name: mines
     description: Mine and planning operations
   - name: reserves
@@ -19,6 +21,35 @@ tags:
   - name: recommendations
     description: Auditable corrective recommendations
 paths:
+  /data-mode:
+    get:
+      operationId: getDataMode
+      tags: [data-mode]
+      summary: Get the active data mode and source readiness
+      responses:
+        "200":
+          description: Active mode and live source status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataModeResponse"
+    put:
+      operationId: setDataMode
+      tags: [data-mode]
+      summary: Switch between synthetic preview and live data mode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DataModeRequest"
+      responses:
+        "200":
+          description: Updated mode and live source status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataModeResponse"
   /healthz:
     get:
       operationId: healthCheck
@@ -163,6 +194,36 @@ paths:
           description: Mine not found
 components:
   schemas:
+    DataModeRequest:
+      type: object
+      required: [mode]
+      properties:
+        mode:
+          type: string
+          enum: [synthetic, live]
+    DataSourceStatus:
+      type: object
+      required: [id, label, status, detail]
+      properties:
+        id: { type: string }
+        label: { type: string }
+        status:
+          type: string
+          enum: [connected, missing, adapter_pending]
+        detail: { type: string }
+    DataModeResponse:
+      type: object
+      required: [mode, live_ready, message, sources]
+      properties:
+        mode:
+          type: string
+          enum: [synthetic, live]
+        live_ready: { type: boolean }
+        message: { type: string }
+        sources:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataSourceStatus"
     HealthStatus:
       type: object
       properties:

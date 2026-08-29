@@ -6,6 +6,12 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './dataModeRequest';
+export * from './dataModeRequestMode';
+export * from './dataModeResponse';
+export * from './dataModeResponseMode';
+export * from './dataSourceStatus';
+export * from './dataSourceStatusStatus';
 export * from './getMineRecommendationHorizon';
 export * from './getMineRecommendationParams';
 export * from './getProductionForecastHorizon';

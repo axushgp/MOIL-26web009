@@ -15,6 +15,9 @@ import {
   ListMinesResponse,
 } from "@workspace/api-zod";
 import {
+  ensureOperationalDataMode,
+} from "../lib/data-mode";
+import {
   findMine,
   getProductionHistory,
   initializeMripStore,
@@ -33,6 +36,7 @@ function normalizeHorizon(value: unknown) {
 
 router.use(async (_req, _res, next) => {
   try {
+    ensureOperationalDataMode();
     await initializeMripStore();
     next();
   } catch (error) {

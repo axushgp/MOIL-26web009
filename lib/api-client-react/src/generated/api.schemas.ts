@@ -5,6 +5,49 @@
  * MOIL Reserve Intelligence Platform API
  * OpenAPI spec version: 0.1.0
  */
+export type DataModeRequestMode = typeof DataModeRequestMode[keyof typeof DataModeRequestMode];
+
+
+export const DataModeRequestMode = {
+  synthetic: 'synthetic',
+  live: 'live',
+} as const;
+
+export interface DataModeRequest {
+  mode: DataModeRequestMode;
+}
+
+export type DataSourceStatusStatus = typeof DataSourceStatusStatus[keyof typeof DataSourceStatusStatus];
+
+
+export const DataSourceStatusStatus = {
+  connected: 'connected',
+  missing: 'missing',
+  adapter_pending: 'adapter_pending',
+} as const;
+
+export interface DataSourceStatus {
+  id: string;
+  label: string;
+  status: DataSourceStatusStatus;
+  detail: string;
+}
+
+export type DataModeResponseMode = typeof DataModeResponseMode[keyof typeof DataModeResponseMode];
+
+
+export const DataModeResponseMode = {
+  synthetic: 'synthetic',
+  live: 'live',
+} as const;
+
+export interface DataModeResponse {
+  mode: DataModeResponseMode;
+  live_ready: boolean;
+  message: string;
+  sources: DataSourceStatus[];
+}
+
 export interface HealthStatus {
   status: string;
 }

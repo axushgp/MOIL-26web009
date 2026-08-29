@@ -6,16 +6,22 @@
  * OpenAPI spec version: 0.1.0
  */
 import {
+  useMutation,
   useQuery
 } from '@tanstack/react-query';
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
 
 import type {
+  DataModeRequest,
+  DataModeResponse,
   GetMineRecommendationParams,
   GetProductionForecastParams,
   GetProductionHistoryParams,
@@ -30,7 +36,7 @@ import type {
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
-import type { ErrorType } from '../custom-fetch';
+import type { ErrorType , BodyType } from '../custom-fetch';
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -55,6 +61,154 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetDataModeUrl = () => {
+
+
+
+
+  return `/api/data-mode`
+}
+
+/**
+ * @summary Get the active data mode and source readiness
+ */
+export const getDataMode = async ( options?: Parameters<typeof customFetch>[1]): Promise<DataModeResponse> => {
+
+  return customFetch<DataModeResponse>(getGetDataModeUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetDataModeQueryKey = () => {
+    return [
+    `/api/data-mode`
+    ] as const;
+    }
+
+
+export const getGetDataModeQueryOptions = <TData = Awaited<ReturnType<typeof getDataMode>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDataMode>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDataModeQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDataMode>>> = ({ signal }) => getDataMode({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDataMode>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetDataModeQueryResult = NonNullable<Awaited<ReturnType<typeof getDataMode>>>
+export type GetDataModeQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get the active data mode and source readiness
+ */
+
+export function useGetDataMode<TData = Awaited<ReturnType<typeof getDataMode>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDataMode>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetDataModeQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSetDataModeUrl = () => {
+
+
+
+
+  return `/api/data-mode`
+}
+
+/**
+ * @summary Switch between synthetic preview and live data mode
+ */
+export const setDataMode = async (dataModeRequest: DataModeRequest, options?: Parameters<typeof customFetch>[1]): Promise<DataModeResponse> => {
+
+  return customFetch<DataModeResponse>(getSetDataModeUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(dataModeRequest)
+  }
+);}
+
+
+
+
+
+export const getSetDataModeMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setDataMode>>, TError,{data: BodyType<DataModeRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setDataMode>>, TError,{data: BodyType<DataModeRequest>}, TContext> => {
+
+const mutationKey = ['setDataMode'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setDataMode>>, {data: BodyType<DataModeRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  setDataMode(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetDataModeMutationResult = NonNullable<Awaited<ReturnType<typeof setDataMode>>>
+    export type SetDataModeMutationBody = BodyType<DataModeRequest>
+    export type SetDataModeMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Switch between synthetic preview and live data mode
+ */
+export const useSetDataMode = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setDataMode>>, TError,{data: BodyType<DataModeRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof setDataMode>>,
+        TError,
+        {data: BodyType<DataModeRequest>},
+        TContext
+      > => {
+      return useMutation(getSetDataModeMutationOptions(options));
+    }
 
 export const getHealthCheckUrl = () => {
 

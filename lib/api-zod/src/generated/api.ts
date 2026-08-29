@@ -9,6 +9,42 @@ import * as zod from 'zod';
 
 
 /**
+ * @summary Get the active data mode and source readiness
+ */
+export const GetDataModeResponse = zod.object({
+  "mode": zod.enum(['synthetic', 'live']),
+  "live_ready": zod.boolean(),
+  "message": zod.string(),
+  "sources": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "status": zod.enum(['connected', 'missing', 'adapter_pending']),
+  "detail": zod.string()
+}))
+})
+
+
+/**
+ * @summary Switch between synthetic preview and live data mode
+ */
+export const SetDataModeBody = zod.object({
+  "mode": zod.enum(['synthetic', 'live'])
+})
+
+export const SetDataModeResponse = zod.object({
+  "mode": zod.enum(['synthetic', 'live']),
+  "live_ready": zod.boolean(),
+  "message": zod.string(),
+  "sources": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "status": zod.enum(['connected', 'missing', 'adapter_pending']),
+  "detail": zod.string()
+}))
+})
+
+
+/**
  * Returns server health status
  * @summary Health check
  */

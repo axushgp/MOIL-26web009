@@ -31,4 +31,22 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
 
+app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  if (
+    error &&
+    typeof error === "object" &&
+    "statusCode" in error &&
+    error.statusCode === 503
+  ) {
+    res.status(503).json({
+      code: "LIVE_DATA_NOT_READY",
+      error: error instanceof Error ? error.message : "Live data is not ready.",
+    });
+    return;
+  }
+
+  logger.error({ err: error }, "Unhandled request error");
+  res.status(500).json({ error: "Internal server error" });
+});
+
 export default app;
