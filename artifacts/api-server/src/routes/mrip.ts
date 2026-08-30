@@ -15,10 +15,17 @@ import {
   ListMinesResponse,
 } from "@workspace/api-zod";
 import {
+  getDataMode,
   ensureOperationalDataMode,
 } from "../lib/data-mode";
 import {
   findMine,
+  getLiveForecast,
+  getLiveProductionHistory,
+  getLiveRecommendation,
+  getLiveValidation,
+  listLiveMines,
+  listLiveReservePoints,
   getProductionHistory,
   initializeMripStore,
   listMines,
@@ -46,7 +53,8 @@ router.use(async (_req, _res, next) => {
 
 router.get("/mines", async (_req, res, next) => {
   try {
-    res.json(ListMinesResponse.parse(await listMines()));
+    const mines = getDataMode().mode === "live" ? listLiveMines() : await listMines();
+    res.json(ListMinesResponse.parse(mines));
   } catch (error) {
     next(error);
   }
@@ -55,7 +63,7 @@ router.get("/mines", async (_req, res, next) => {
 router.get("/reserves/heatmap", async (req, res, next) => {
   try {
     const query = GetReserveHeatmapQueryParams.parse(req.query);
-    let points = await listReservePoints();
+    let points = getDataMode().mode === "live" ? listLiveReservePoints() : await listReservePoints();
     if (query.bbox) {
       const values = query.bbox.split(",").map(Number);
       if (values.length === 4 && values.every(Number.isFinite)) {
@@ -72,8 +80,8 @@ router.get("/reserves/heatmap", async (req, res, next) => {
     res.json(
       GetReserveHeatmapResponse.parse({
         points,
-        model_version: "fusion-v0.4",
-        computed_at: "2026-08-29T09:00:00.000Z",
+        model_version: getDataMode().mode === "live" ? "live-bundle" : "fusion-v0.4",
+        computed_at: getDataMode().mode === "live" ? new Date().toISOString() : "2026-08-29T09:00:00.000Z",
       }),
     );
   } catch (error) {
@@ -82,8 +90,7 @@ router.get("/reserves/heatmap", async (req, res, next) => {
 });
 
 router.get("/reserves/validation", (_req, res) => {
-  res.json(
-    GetReserveValidationResponse.parse({
+  const validation = getDataMode().mode === "live" ? getLiveValidation() : {
       confirmed_mines_checked: 3,
       avg_percentile_rank: 82.4,
       per_mine: [
@@ -93,24 +100,25 @@ router.get("/reserves/validation", (_req, res) => {
       ],
       method:
         "Leave-one-out percentile ranking on public-source approximate mine points",
-    }),
-  );
+    };
+  res.json(GetReserveValidationResponse.parse(validation));
 });
 
 router.get("/production/:mineId/history", async (req, res, next) => {
   try {
     const { mineId } = GetProductionHistoryParams.parse(req.params);
     const { days } = GetProductionHistoryQueryParams.parse(req.query);
-    const mine = await findMine(mineId);
+    const mine = getDataMode().mode === "live"
+      ? listLiveMines().find((record) => record.mine_id === mineId)
+      : await findMine(mineId);
     if (!mine) {
       res.status(404).json({ error: "Mine not found" });
       return;
     }
-    res.json(
-      GetProductionHistoryResponse.parse(
-        await getProductionHistory(mineId, days),
-      ),
-    );
+    const history = getDataMode().mode === "live"
+      ? getLiveProductionHistory(mineId, days)
+      : await getProductionHistory(mineId, days);
+    res.json(GetProductionHistoryResponse.parse(history));
   } catch (error) {
     next(error);
   }
@@ -123,9 +131,20 @@ router.get("/production/:mineId/forecast", async (req, res, next) => {
       ...req.query,
       horizon: normalizeHorizon(req.query.horizon),
     });
-    const mine = await findMine(mineId);
+    const mine = getDataMode().mode === "live"
+      ? listLiveMines().find((record) => record.mine_id === mineId)
+      : await findMine(mineId);
     if (!mine) {
       res.status(404).json({ error: "Mine not found" });
+      return;
+    }
+    if (getDataMode().mode === "live") {
+      const liveForecast = getLiveForecast(mineId, horizon);
+      if (!liveForecast) {
+        res.status(404).json({ error: "Forecast not found in validated live bundle" });
+        return;
+      }
+      res.json(GetProductionForecastResponse.parse(liveForecast));
       return;
     }
     const forecast = await persistForecast(mine, horizon);
@@ -152,9 +171,20 @@ router.get("/recommendations/:mineId", async (req, res, next) => {
       ...req.query,
       horizon: normalizeHorizon(req.query.horizon),
     });
-    const mine = await findMine(mineId);
+    const mine = getDataMode().mode === "live"
+      ? listLiveMines().find((record) => record.mine_id === mineId)
+      : await findMine(mineId);
     if (!mine) {
       res.status(404).json({ error: "Mine not found" });
+      return;
+    }
+    if (getDataMode().mode === "live") {
+      const liveRecommendation = getLiveRecommendation(mineId, horizon);
+      if (!liveRecommendation) {
+        res.status(404).json({ error: "Recommendation not found in validated live bundle" });
+        return;
+      }
+      res.json(GetMineRecommendationResponse.parse(liveRecommendation));
       return;
     }
     const forecast = await persistForecast(mine, horizon);

@@ -1,3 +1,4 @@
 - [API query coercion](api-query-coercion.md) — normalize numeric URL query values before generated enum validation.
 - [Generated API schema names](generated-api-schema-names.md) — server imports must match operation-scoped names emitted by the current OpenAPI generator.
 - [Imported workspace bootstrap](imported-workspace-bootstrap.md) — imported pnpm apps may need dependency install and dev-schema application before the first preview request.
+- [Live data provenance gate](live-data-provenance.md) — live mode requires validated source artifacts and a provenance-bearing fusion bundle, never credentials alone.

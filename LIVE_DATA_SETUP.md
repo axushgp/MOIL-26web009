@@ -51,7 +51,9 @@ streaming API.
    data/raw/bhukosh/
    ```
 
-   Or set `BHUKOSH_DATA_DIR` to another protected directory.
+   Or set `BHUKOSH_DATA_DIR` to another protected directory. The Node API
+   consumes a validated GeoJSON export from `BHUKOSH_GEOJSON_PATH`; the export
+   must retain the original layer attribution and CRS metadata.
 3. Record the Bhukosh layer name, download date, license/attribution, CRS, and
    the Sausar Group boundary selected for modelling.
 4. Build the loader that validates geometry, CRS, and required attributes,

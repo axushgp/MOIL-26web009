@@ -28,6 +28,7 @@ import type {
   GetReserveHeatmapParams,
   HealthStatus,
   HeatmapResponse,
+  LiveDataUnavailable,
   Mine,
   ProductionForecast,
   ProductionHistory,
@@ -321,7 +322,7 @@ export const getListMinesQueryKey = () => {
     }
 
 
-export const getListMinesQueryOptions = <TData = Awaited<ReturnType<typeof listMines>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMines>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getListMinesQueryOptions = <TData = Awaited<ReturnType<typeof listMines>>, TError = ErrorType<LiveDataUnavailable>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMines>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -340,14 +341,14 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type ListMinesQueryResult = NonNullable<Awaited<ReturnType<typeof listMines>>>
-export type ListMinesQueryError = ErrorType<unknown>
+export type ListMinesQueryError = ErrorType<LiveDataUnavailable>
 
 
 /**
  * @summary List MOIL mines
  */
 
-export function useListMines<TData = Awaited<ReturnType<typeof listMines>>, TError = ErrorType<unknown>>(
+export function useListMines<TData = Awaited<ReturnType<typeof listMines>>, TError = ErrorType<LiveDataUnavailable>>(
   options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMines>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -405,7 +406,7 @@ export const getGetReserveHeatmapQueryKey = (params?: GetReserveHeatmapParams,) 
     }
 
 
-export const getGetReserveHeatmapQueryOptions = <TData = Awaited<ReturnType<typeof getReserveHeatmap>>, TError = ErrorType<unknown>>(params?: GetReserveHeatmapParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getReserveHeatmap>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetReserveHeatmapQueryOptions = <TData = Awaited<ReturnType<typeof getReserveHeatmap>>, TError = ErrorType<LiveDataUnavailable>>(params?: GetReserveHeatmapParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getReserveHeatmap>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -424,14 +425,14 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetReserveHeatmapQueryResult = NonNullable<Awaited<ReturnType<typeof getReserveHeatmap>>>
-export type GetReserveHeatmapQueryError = ErrorType<unknown>
+export type GetReserveHeatmapQueryError = ErrorType<LiveDataUnavailable>
 
 
 /**
  * @summary Get reserve probability points
  */
 
-export function useGetReserveHeatmap<TData = Awaited<ReturnType<typeof getReserveHeatmap>>, TError = ErrorType<unknown>>(
+export function useGetReserveHeatmap<TData = Awaited<ReturnType<typeof getReserveHeatmap>>, TError = ErrorType<LiveDataUnavailable>>(
  params?: GetReserveHeatmapParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getReserveHeatmap>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -482,7 +483,7 @@ export const getGetReserveValidationQueryKey = () => {
     }
 
 
-export const getGetReserveValidationQueryOptions = <TData = Awaited<ReturnType<typeof getReserveValidation>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getReserveValidation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetReserveValidationQueryOptions = <TData = Awaited<ReturnType<typeof getReserveValidation>>, TError = ErrorType<LiveDataUnavailable>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getReserveValidation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -501,14 +502,14 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetReserveValidationQueryResult = NonNullable<Awaited<ReturnType<typeof getReserveValidation>>>
-export type GetReserveValidationQueryError = ErrorType<unknown>
+export type GetReserveValidationQueryError = ErrorType<LiveDataUnavailable>
 
 
 /**
  * @summary Get leave-one-out reserve validation
  */
 
-export function useGetReserveValidation<TData = Awaited<ReturnType<typeof getReserveValidation>>, TError = ErrorType<unknown>>(
+export function useGetReserveValidation<TData = Awaited<ReturnType<typeof getReserveValidation>>, TError = ErrorType<LiveDataUnavailable>>(
   options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getReserveValidation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -569,7 +570,7 @@ export const getGetProductionHistoryQueryKey = (mineId: string,
     }
 
 
-export const getGetProductionHistoryQueryOptions = <TData = Awaited<ReturnType<typeof getProductionHistory>>, TError = ErrorType<void>>(mineId: string,
+export const getGetProductionHistoryQueryOptions = <TData = Awaited<ReturnType<typeof getProductionHistory>>, TError = ErrorType<void | LiveDataUnavailable>>(mineId: string,
     params?: GetProductionHistoryParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getProductionHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
@@ -589,14 +590,14 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetProductionHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof getProductionHistory>>>
-export type GetProductionHistoryQueryError = ErrorType<void>
+export type GetProductionHistoryQueryError = ErrorType<void | LiveDataUnavailable>
 
 
 /**
  * @summary Get recent production history
  */
 
-export function useGetProductionHistory<TData = Awaited<ReturnType<typeof getProductionHistory>>, TError = ErrorType<void>>(
+export function useGetProductionHistory<TData = Awaited<ReturnType<typeof getProductionHistory>>, TError = ErrorType<void | LiveDataUnavailable>>(
  mineId: string,
     params?: GetProductionHistoryParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getProductionHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
@@ -658,7 +659,7 @@ export const getGetProductionForecastQueryKey = (mineId: string,
     }
 
 
-export const getGetProductionForecastQueryOptions = <TData = Awaited<ReturnType<typeof getProductionForecast>>, TError = ErrorType<void>>(mineId: string,
+export const getGetProductionForecastQueryOptions = <TData = Awaited<ReturnType<typeof getProductionForecast>>, TError = ErrorType<void | LiveDataUnavailable>>(mineId: string,
     params?: GetProductionForecastParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getProductionForecast>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
@@ -678,14 +679,14 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetProductionForecastQueryResult = NonNullable<Awaited<ReturnType<typeof getProductionForecast>>>
-export type GetProductionForecastQueryError = ErrorType<void>
+export type GetProductionForecastQueryError = ErrorType<void | LiveDataUnavailable>
 
 
 /**
  * @summary Get mine shortfall forecast
  */
 
-export function useGetProductionForecast<TData = Awaited<ReturnType<typeof getProductionForecast>>, TError = ErrorType<void>>(
+export function useGetProductionForecast<TData = Awaited<ReturnType<typeof getProductionForecast>>, TError = ErrorType<void | LiveDataUnavailable>>(
  mineId: string,
     params?: GetProductionForecastParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getProductionForecast>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
@@ -747,7 +748,7 @@ export const getGetMineRecommendationQueryKey = (mineId: string,
     }
 
 
-export const getGetMineRecommendationQueryOptions = <TData = Awaited<ReturnType<typeof getMineRecommendation>>, TError = ErrorType<void>>(mineId: string,
+export const getGetMineRecommendationQueryOptions = <TData = Awaited<ReturnType<typeof getMineRecommendation>>, TError = ErrorType<void | LiveDataUnavailable>>(mineId: string,
     params?: GetMineRecommendationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMineRecommendation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
@@ -767,14 +768,14 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetMineRecommendationQueryResult = NonNullable<Awaited<ReturnType<typeof getMineRecommendation>>>
-export type GetMineRecommendationQueryError = ErrorType<void>
+export type GetMineRecommendationQueryError = ErrorType<void | LiveDataUnavailable>
 
 
 /**
  * @summary Get an auditable corrective recommendation
  */
 
-export function useGetMineRecommendation<TData = Awaited<ReturnType<typeof getMineRecommendation>>, TError = ErrorType<void>>(
+export function useGetMineRecommendation<TData = Awaited<ReturnType<typeof getMineRecommendation>>, TError = ErrorType<void | LiveDataUnavailable>>(
  mineId: string,
     params?: GetMineRecommendationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMineRecommendation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 

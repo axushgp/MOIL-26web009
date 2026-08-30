@@ -53,7 +53,7 @@ function Mark({ small = false }: { small?: boolean }) {
   );
 }
 
-function Sidebar({ open, onClose, onJump }: { open: boolean; onClose: () => void; onJump: (id: string) => void }) {
+function Sidebar({ open, onClose, onJump, mode, liveReady }: { open: boolean; onClose: () => void; onJump: (id: string) => void; mode: 'synthetic' | 'live'; liveReady: boolean }) {
   const nav = [
     { label: 'Reserve intelligence', icon: Target, id: 'overview', active: true },
     { label: 'Validation evidence', icon: FileCheck2, id: 'validation' },
@@ -81,8 +81,8 @@ function Sidebar({ open, onClose, onJump }: { open: boolean; onClose: () => void
         <div className="mt-auto px-5 pb-6">
           <div className="rounded-md border border-sidebar-border bg-sidebar-accent/40 p-4">
             <div className="mb-3 flex items-center gap-2 text-sidebar-foreground/75"><Database size={14} /><span className="mono text-[9px] uppercase tracking-[.16em]">Data posture</span></div>
-            <div className="flex items-center gap-2 text-[12px] text-sidebar-foreground/80"><span className="h-2 w-2 rounded-full bg-[hsl(39_72%_58%)] shadow-[0_0_0_3px_hsl(39_72%_58%/.14)]" /> Demo data only</div>
-            <div className="mt-2 text-[11px] leading-relaxed text-sidebar-foreground/45">External satellite, geology, and weather feeds are not connected in this preview.</div>
+            <div className="flex items-center gap-2 text-[12px] text-sidebar-foreground/80"><span className={`h-2 w-2 rounded-full ${mode === 'live' && liveReady ? 'bg-accent shadow-[0_0_0_3px_hsl(164_40%_50%/.14)]' : 'bg-[hsl(39_72%_58%)] shadow-[0_0_0_3px_hsl(39_72%_58%/.14)]'}`} /> {mode === 'live' ? (liveReady ? 'Live feeds connected' : 'Live setup required') : 'Demo data only'}</div>
+            <div className="mt-2 text-[11px] leading-relaxed text-sidebar-foreground/45">{mode === 'live' ? (liveReady ? 'Validated imagery, geology, weather, and production outputs are active.' : 'External source adapters are incomplete; synthetic data is blocked.') : 'External satellite, geology, and weather feeds are not connected in this preview.'}</div>
           </div>
           <div className="mt-5 flex items-center gap-3 px-2"><div className="flex h-8 w-8 items-center justify-center rounded-full bg-sidebar-primary/15 mono text-[11px] text-sidebar-primary">PM</div><div className="min-w-0"><div className="truncate text-[12px] font-semibold">Planning desk</div><div className="truncate text-[10px] text-sidebar-foreground/45">Central operations</div></div><ChevronDown size={14} className="ml-auto text-sidebar-foreground/35" /></div>
         </div>
@@ -234,7 +234,7 @@ function Home() {
   const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   const computedAt = heatmapData?.computed_at;
   return <div className="min-h-[100dvh] bg-background text-foreground">
-    <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} onJump={jump} />
+    <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} onJump={jump} mode={isSynthetic ? 'synthetic' : 'live'} liveReady={Boolean(dataModeQuery.data?.live_ready)} />
     <main className="min-h-[100dvh] lg:pl-[268px]">
       <header className="sticky top-0 z-20 flex h-[70px] items-center justify-between border-b border-border bg-[hsl(38_36%_95%/.92)] px-5 backdrop-blur-md sm:px-8">
         <div className="flex items-center gap-3"><button data-testid="button-open-sidebar" aria-label="Open navigation" onClick={() => setSidebarOpen(true)} className="rounded-md p-2 hover:bg-muted lg:hidden"><Menu size={19} /></button><div className="hidden h-7 w-px bg-border sm:block" /><div><div className="mono text-[9px] font-bold uppercase tracking-[.18em] text-muted-foreground">Operations / intelligence console</div><div className="mt-0.5 text-[12px] font-semibold">Central planning workspace</div></div></div>

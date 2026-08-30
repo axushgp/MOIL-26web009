@@ -62,6 +62,7 @@ export const ListMinesResponseItem = zod.object({
   "district": zod.string(),
   "mine_type": zod.string(),
   "coordinate_status": zod.string(),
+  "data_provenance": zod.string(),
   "latitude": zod.number().nullish(),
   "longitude": zod.number().nullish(),
   "depth_m": zod.number().nullish(),
@@ -86,7 +87,8 @@ export const GetReserveHeatmapResponse = zod.object({
   "reserve_probability": zod.number(),
   "spectral_score": zod.number(),
   "structural_score": zod.number(),
-  "zone_type": zod.string()
+  "zone_type": zod.string(),
+  "data_provenance": zod.string()
 })),
   "model_version": zod.string(),
   "computed_at": zod.string()
@@ -181,7 +183,8 @@ export const GetMineRecommendationResponse = zod.object({
   "detail": zod.string(),
   "explanation_text": zod.string(),
   "driver": zod.string(),
-  "generated_at": zod.string()
+  "generated_at": zod.string(),
+  "provenance": zod.string()
 })
 
 

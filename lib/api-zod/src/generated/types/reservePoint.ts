@@ -13,4 +13,5 @@ export interface ReservePoint {
   spectral_score: number;
   structural_score: number;
   zone_type: string;
+  data_provenance: string;
 }

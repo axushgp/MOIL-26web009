@@ -5,6 +5,18 @@
  * MOIL Reserve Intelligence Platform API
  * OpenAPI spec version: 0.1.0
  */
+export type LiveDataUnavailableCode = typeof LiveDataUnavailableCode[keyof typeof LiveDataUnavailableCode];
+
+
+export const LiveDataUnavailableCode = {
+  LIVE_DATA_NOT_READY: 'LIVE_DATA_NOT_READY',
+} as const;
+
+export interface LiveDataUnavailable {
+  code: LiveDataUnavailableCode;
+  error: string;
+}
+
 export type DataModeRequestMode = typeof DataModeRequestMode[keyof typeof DataModeRequestMode];
 
 
@@ -58,6 +70,7 @@ export interface Mine {
   district: string;
   mine_type: string;
   coordinate_status: string;
+  data_provenance: string;
   /** @nullable */
   latitude?: number | null;
   /** @nullable */
@@ -76,6 +89,7 @@ export interface ReservePoint {
   spectral_score: number;
   structural_score: number;
   zone_type: string;
+  data_provenance: string;
 }
 
 export interface HeatmapResponse {
@@ -125,6 +139,7 @@ export interface Recommendation {
   explanation_text: string;
   driver: string;
   generated_at: string;
+  provenance: string;
 }
 
 export type GetReserveHeatmapParams = {

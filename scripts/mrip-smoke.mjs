@@ -2,6 +2,7 @@ const baseUrl = process.env.MRIP_API_URL || "http://127.0.0.1:8080/api";
 
 const expectedEndpoints = [
   "/healthz",
+  "/data-mode",
   "/mines",
   "/reserves/heatmap",
   "/reserves/validation",
@@ -17,6 +18,30 @@ async function get(path) {
 
 const health = await get("/healthz");
 if (health.status !== "ok") throw new Error("Health response is not ok");
+
+const dataMode = await get("/data-mode");
+if (dataMode.mode !== "synthetic" || dataMode.sources?.length < 5) {
+  throw new Error("Data-mode readiness contract is incomplete");
+}
+
+if (!dataMode.live_ready) {
+  const liveModeResponse = await fetch(`${baseUrl}/data-mode`, {
+    method: "PUT",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ mode: "live" }),
+  });
+  if (!liveModeResponse.ok) throw new Error("Could not select live mode");
+  const liveMinesResponse = await fetch(`${baseUrl}/mines`);
+  if (liveMinesResponse.status !== 503) {
+    throw new Error("Live mode did not fail closed when adapters were incomplete");
+  }
+  const syntheticModeResponse = await fetch(`${baseUrl}/data-mode`, {
+    method: "PUT",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ mode: "synthetic" }),
+  });
+  if (!syntheticModeResponse.ok) throw new Error("Could not restore synthetic mode");
+}
 
 const mines = await get("/mines");
 if (!Array.isArray(mines) || mines.length < 1) throw new Error("Mine register is empty");

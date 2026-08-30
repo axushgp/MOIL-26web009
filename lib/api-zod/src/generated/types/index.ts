@@ -20,6 +20,8 @@ export * from './getProductionHistoryParams';
 export * from './getReserveHeatmapParams';
 export * from './healthStatus';
 export * from './heatmapResponse';
+export * from './liveDataUnavailable';
+export * from './liveDataUnavailableCode';
 export * from './mine';
 export * from './productionForecast';
 export * from './productionHistory';

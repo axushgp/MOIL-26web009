@@ -13,4 +13,5 @@ export interface Recommendation {
   explanation_text: string;
   driver: string;
   generated_at: string;
+  provenance: string;
 }

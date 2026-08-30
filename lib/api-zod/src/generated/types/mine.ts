@@ -12,6 +12,7 @@ export interface Mine {
   district: string;
   mine_type: string;
   coordinate_status: string;
+  data_provenance: string;
   /** @nullable */
   latitude?: number | null;
   /** @nullable */

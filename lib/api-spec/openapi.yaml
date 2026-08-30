@@ -77,6 +77,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Mine"
+        "503":
+          description: Live mode selected but source adapters are incomplete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveDataUnavailable"
   /reserves/heatmap:
     get:
       operationId: getReserveHeatmap
@@ -96,6 +102,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HeatmapResponse"
+        "503":
+          description: Live mode selected but source adapters are incomplete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveDataUnavailable"
   /reserves/validation:
     get:
       operationId: getReserveValidation
@@ -108,6 +120,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationResponse"
+        "503":
+          description: Live mode selected but source adapters are incomplete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveDataUnavailable"
   /production/{mineId}/history:
     get:
       operationId: getProductionHistory
@@ -138,6 +156,12 @@ paths:
                   $ref: "#/components/schemas/ProductionHistory"
         "404":
           description: Mine not found
+        "503":
+          description: Live mode selected but source adapters are incomplete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveDataUnavailable"
   /production/{mineId}/forecast:
     get:
       operationId: getProductionForecast
@@ -165,6 +189,12 @@ paths:
                 $ref: "#/components/schemas/ProductionForecast"
         "404":
           description: Mine not found
+        "503":
+          description: Live mode selected but source adapters are incomplete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveDataUnavailable"
   /recommendations/{mineId}:
     get:
       operationId: getMineRecommendation
@@ -192,8 +222,20 @@ paths:
                 $ref: "#/components/schemas/Recommendation"
         "404":
           description: Mine not found
+        "503":
+          description: Live mode selected but source adapters are incomplete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveDataUnavailable"
 components:
   schemas:
+    LiveDataUnavailable:
+      type: object
+      required: [code, error]
+      properties:
+        code: { type: string, enum: [LIVE_DATA_NOT_READY] }
+        error: { type: string }
     DataModeRequest:
       type: object
       required: [mode]
@@ -233,13 +275,14 @@ components:
         - status
     Mine:
       type: object
-      required: [mine_id, name, district, mine_type, coordinate_status]
+      required: [mine_id, name, district, mine_type, coordinate_status, data_provenance]
       properties:
         mine_id: { type: string }
         name: { type: string }
         district: { type: string }
         mine_type: { type: string }
         coordinate_status: { type: string }
+        data_provenance: { type: string }
         latitude: { type: ["number", "null"] }
         longitude: { type: ["number", "null"] }
         depth_m: { type: ["number", "null"] }
@@ -248,7 +291,7 @@ components:
         dominant_driver: { type: string }
     ReservePoint:
       type: object
-      required: [latitude, longitude, reserve_probability, spectral_score, structural_score, zone_type]
+      required: [latitude, longitude, reserve_probability, spectral_score, structural_score, zone_type, data_provenance]
       properties:
         latitude: { type: number }
         longitude: { type: number }
@@ -256,6 +299,7 @@ components:
         spectral_score: { type: number }
         structural_score: { type: number }
         zone_type: { type: string }
+        data_provenance: { type: string }
     HeatmapResponse:
       type: object
       required: [points, model_version, computed_at]
@@ -307,7 +351,7 @@ components:
         provenance: { type: string }
     Recommendation:
       type: object
-      required: [mine_id, action, detail, explanation_text, driver, generated_at]
+      required: [mine_id, action, detail, explanation_text, driver, generated_at, provenance]
       properties:
         mine_id: { type: string }
         action: { type: string }
@@ -315,4 +359,5 @@ components:
         explanation_text: { type: string }
         driver: { type: string }
         generated_at: { type: string }
+        provenance: { type: string }
 

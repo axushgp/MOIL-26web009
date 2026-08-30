@@ -13,6 +13,7 @@ import {
   type ShortfallForecast,
 } from "@workspace/db";
 import { recommend } from "./rules-engine";
+import { loadLiveBundle } from "./live-adapters";
 
 const RESERVE_MODEL_VERSION = "fusion-v0.4";
 const FORECAST_MODEL_VERSION = "forecast-xgb-v0.3";
@@ -283,6 +284,11 @@ async function hasProductionRows() {
 
 async function seedSyntheticPreviewData() {
   for (const mine of SYNTHETIC_DEMO_MINES) {
+    // The development database may retain the original imported schema, where
+    // mine coordinates are non-null. Do not invent coordinates for unresolved
+    // mine locations; those records remain documented in the source constant
+    // but are omitted from the seeded operational register.
+    if (mine.latitude === null || mine.longitude === null) continue;
     await db
       .insert(minesTable)
       .values(mine)
@@ -345,7 +351,9 @@ async function seedSyntheticPreviewData() {
 
   if (!(await hasProductionRows())) {
     const productionRows = SYNTHETIC_DEMO_MINES.flatMap((mine) =>
-      syntheticHistoryFor(mine, 365),
+      mine.latitude !== null && mine.longitude !== null
+        ? syntheticHistoryFor(mine, 365)
+        : [],
     );
     await db.insert(productionHistoryTable).values(productionRows);
   }
@@ -365,6 +373,7 @@ function toMineResponse(mine: Mine) {
     district: mine.district,
     mine_type: mine.mineType,
     coordinate_status: mine.coordinateStatus,
+    data_provenance: "synthetic_demo_mine_register",
     latitude: mine.latitude,
     longitude: mine.longitude,
     depth_m: mine.depthM,
@@ -394,6 +403,7 @@ function toReserveResponse(row: ReserveGrid) {
     spectral_score: row.spectralScore,
     structural_score: row.structuralScore,
     zone_type: row.zoneType,
+    data_provenance: "synthetic_demo_satellite_geology_fusion",
   };
 }
 
@@ -414,6 +424,41 @@ function toForecastResponse(row: ShortfallForecast) {
 export async function listMines() {
   const rows = await db.select().from(minesTable).orderBy(asc(minesTable.name));
   return rows.map(toMineResponse);
+}
+
+export function listLiveMines() {
+  return loadLiveBundle().mines.map(({ provenance: data_provenance, ...mine }) => ({
+    ...mine,
+    data_provenance,
+  }));
+}
+
+export function listLiveReservePoints() {
+  return loadLiveBundle().reserve_points;
+}
+
+export function getLiveProductionHistory(mineId: string, days: number) {
+  return loadLiveBundle().production_history
+    .filter((row) => row.mine_id === mineId)
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(0, days);
+}
+
+export function getLiveValidation() {
+  return loadLiveBundle().validation;
+}
+
+export function getLiveForecast(mineId: string, horizon: number) {
+  return loadLiveBundle().forecasts.find(
+    (forecast) => forecast.mine_id === mineId && forecast.horizon_days === horizon,
+  );
+}
+
+export function getLiveRecommendation(mineId: string, horizon: number) {
+  const forecast = getLiveForecast(mineId, horizon);
+  return forecast
+    ? loadLiveBundle().recommendations.find((recommendation) => recommendation.mine_id === mineId)
+    : undefined;
 }
 
 export async function findMine(mineId: string) {
@@ -531,5 +576,6 @@ export function recommendationResponse(
     driver: recommendation.driver,
     explanation_text: recommendation.explanationText,
     generated_at: recommendation.generatedAt.toISOString(),
+    provenance: "synthetic_demo_rules_engine",
   };
 }
