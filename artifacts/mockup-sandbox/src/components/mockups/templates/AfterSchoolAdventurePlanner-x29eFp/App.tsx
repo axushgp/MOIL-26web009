@@ -31,8 +31,8 @@ const ACTIVITIES = [
   { id: 'lego', name: 'LEGO Robotics Lab', day: 'Fri', time: '4:00 – 5:30', cat: 'think', icon: Puzzle, instructor: 'Mr. Linden', spots: 3, price: 21, ages: '8–12', color: '#5B9BD5', bg: '#E3EEF9' },
 ];
 
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-const DAY_LABELS = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday' };
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] as const;
+const DAY_LABELS: Record<(typeof DAYS)[number], string> = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday' };
 
 export default function App() {
   const [activeChild, setActiveChild] = useState('maya');
@@ -43,10 +43,10 @@ export default function App() {
   ]);
   const [confirmed, setConfirmed] = useState(false);
 
-  const isBooked = (activityId, childId) =>
+  const isBooked = (activityId: string, childId: string) =>
     bookings.some((b) => b.activityId === activityId && b.childId === childId);
 
-  const toggleBooking = (activityId) => {
+  const toggleBooking = (activityId: string) => {
     setConfirmed(false);
     setBookings((prev) => {
       const exists = prev.find((b) => b.activityId === activityId && b.childId === activeChild);
@@ -69,7 +69,7 @@ export default function App() {
   const siblingDiscount = bothChildrenBooked ? Math.round(subtotal * 0.1) : 0;
   const total = subtotal - siblingDiscount;
 
-  const child = CHILDREN.find((c) => c.id === activeChild);
+  const child = CHILDREN.find((c) => c.id === activeChild)!;
 
   return (
     <div className="min-h-screen bg-[#FAF6EF] text-[#2A2520]" style={{ fontFamily: "'Outfit', sans-serif" }}>
@@ -186,7 +186,7 @@ export default function App() {
                       {dayActivities.map((act) => {
                         const Icon = act.icon;
                         const bookedForActive = isBooked(act.id, activeChild);
-                        const otherChild = CHILDREN.find((c) => c.id !== activeChild);
+                         const otherChild = CHILDREN.find((c) => c.id !== activeChild)!;
                         const bookedForOther = isBooked(act.id, otherChild.id);
                         const full = act.spots <= 1;
                         return (
@@ -271,7 +271,7 @@ export default function App() {
                 )}
                 {bookings.map((b) => {
                   const act = ACTIVITIES.find((a) => a.id === b.activityId);
-                  const c = CHILDREN.find((ch) => ch.id === b.childId);
+                   const c = CHILDREN.find((ch) => ch.id === b.childId)!;
                   if (!act) return null;
                   return (
                     <motion.div

@@ -180,7 +180,7 @@ function syntheticReserveGrid() {
     const nearestMine = locatedMines.length
       ? Math.min(
         ...locatedMines.map((mine) =>
-        distance(latitude, longitude, mine.latitude, mine.longitude),
+        distance(latitude, longitude, mine.latitude!, mine.longitude!),
         ),
       )
       : Infinity;
