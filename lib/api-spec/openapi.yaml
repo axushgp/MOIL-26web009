@@ -275,13 +275,16 @@ components:
         - status
     Mine:
       type: object
-      required: [mine_id, name, district, mine_type, coordinate_status, data_provenance]
+      required: [mine_id, name, district, mine_type, coordinate_status, coordinate_source_uri, coordinate_confidence, coordinate_validation_eligible, data_provenance]
       properties:
         mine_id: { type: string }
         name: { type: string }
         district: { type: string }
         mine_type: { type: string }
         coordinate_status: { type: string }
+        coordinate_source_uri: { type: ["string", "null"] }
+        coordinate_confidence: { type: ["string", "null"] }
+        coordinate_validation_eligible: { type: boolean }
         data_provenance: { type: string }
         latitude: { type: ["number", "null"] }
         longitude: { type: ["number", "null"] }

@@ -20,10 +20,14 @@ const FORECAST_MODEL_VERSION = "forecast-xgb-v0.3";
 const DEMO_RUN_AT = new Date("2026-08-29T09:00:00.000Z");
 const DEMO_START_DATE = "2026-05-31";
 
-type DemoMine = Omit<Mine, "createdAt">;
+type DemoMine = Omit<
+  Mine,
+  "createdAt" | "coordinateSourceUri" | "coordinateConfidence" | "coordinateValidationEligible"
+>;
 
 type CoordinateEvidence = {
   sourceLabel: string;
+  sourceUri: string;
   confidence: string;
   geometryStatus: "verified_point" | "verified_envelope" | "screening_only";
   validationEligible: boolean;
@@ -32,60 +36,70 @@ type CoordinateEvidence = {
 const COORDINATE_EVIDENCE: Record<string, CoordinateEvidence> = {
   balaghat: {
     sourceLabel: "Mindat locality record",
+    sourceUri: "https://www.mindat.org/loc-359215.html",
     confidence: "public-source approximate",
     geometryStatus: "screening_only",
     validationEligible: false,
   },
   ukwa: {
     sourceLabel: "Mindat locality record",
+    sourceUri: "https://www.mindat.org/loc-25562.html",
     confidence: "public-source approximate",
     geometryStatus: "screening_only",
     validationEligible: false,
   },
   tirodi: {
     sourceLabel: "South Tirodi Mine locality record",
+    sourceUri: "https://www.mindat.org/loc-25310.html",
     confidence: "public mine locality",
     geometryStatus: "screening_only",
     validationEligible: false,
   },
   chikla: {
     sourceLabel: "Mindat point + government mine report",
+    sourceUri: "https://www.mindat.org/loc-56561.html",
     confidence: "government-corroborated locality",
     geometryStatus: "verified_point",
     validationEligible: true,
   },
   kandri: {
     sourceLabel: "Government forest-clearance mine report",
+    sourceUri: "https://environmentclearance.nic.in/DownloadPfdFile.aspx?FileName=8dC6vZxajKRE2gld7YNbqyml2WHmapn+rGCr3QTb0AaQuDAsJF6ERCaNQp6bxFwqKpLeav6BSe6tAkJiWwy73Q==&FilePath=93ZZBm8LWEXfg+HAlQix2fE2t8z/pgnoBhDlYdZCxzUI4D0y0DyH4SbeEYqwvEmbw63j4fms9Murl/YnHqFqoQ==",
     confidence: "government report coordinate",
     geometryStatus: "verified_point",
     validationEligible: true,
   },
   mansar: {
     sourceLabel: "ARMA 2018 published mine study",
+    sourceUri: "https://onepetro.org/ARMAUSRMS/proceedings/ARMA18/ARMA18/ARMA-2018-246/122460",
     confidence: "published study center",
     geometryStatus: "verified_point",
     validationEligible: true,
   },
   beldongri: {
     sourceLabel: "The Diggings / USGS locality record",
+    sourceUri: "https://thediggings.com/mines/usgs10206660",
     confidence: "public-source approximate",
     geometryStatus: "screening_only",
     validationEligible: false,
   },
   gumgaon: {
     sourceLabel: "Government lease envelope + locality point",
+    sourceUri: "https://forestsclearance.nic.in/DownloadPdfFile.aspx?FileName=611111217121490Q5Osubsidencereport.pdf&FilePath=../writereaddata/FormA/Miningletter/",
     confidence: "government-corroborated locality",
     geometryStatus: "verified_envelope",
     validationEligible: true,
   },
   "dongri-buzurg": {
     sourceLabel: "Mindat mine locality + government mine plan",
+    sourceUri: "https://www.mindat.org/loc-204187.html",
     confidence: "public-source approximate",
     geometryStatus: "screening_only",
     validationEligible: false,
   },
   sitapatore: {
     sourceLabel: "Mindat deposit point + MOIL unit register",
+    sourceUri: "https://www.mindat.org/loc-359219.html",
     confidence: "public-source approximate",
     geometryStatus: "screening_only",
     validationEligible: false,
@@ -394,10 +408,20 @@ async function hasProductionRows() {
 }
 
 async function seedSyntheticPreviewData() {
+  const evidenceFor = (mineId: string) => {
+    const evidence = COORDINATE_EVIDENCE[mineId];
+    return {
+      coordinateSourceUri: evidence?.sourceUri ?? null,
+      coordinateConfidence: evidence?.confidence ?? null,
+      coordinateValidationEligible: evidence?.validationEligible ?? false,
+    };
+  };
+
   for (const mine of SYNTHETIC_DEMO_MINES) {
+    const evidence = evidenceFor(mine.mineId);
     await db
       .insert(minesTable)
-      .values(mine)
+      .values({ ...mine, ...evidence })
       .onConflictDoUpdate({
         target: minesTable.mineId,
         set: {
@@ -405,6 +429,9 @@ async function seedSyntheticPreviewData() {
           district: mine.district,
           mineType: mine.mineType,
           coordinateStatus: mine.coordinateStatus,
+          coordinateSourceUri: evidence.coordinateSourceUri,
+          coordinateConfidence: evidence.coordinateConfidence,
+          coordinateValidationEligible: evidence.coordinateValidationEligible,
           latitude: mine.latitude,
           longitude: mine.longitude,
           depthM: mine.depthM,
@@ -482,6 +509,9 @@ function toMineResponse(mine: Mine) {
     district: mine.district,
     mine_type: mine.mineType,
     coordinate_status: mine.coordinateStatus,
+    coordinate_source_uri: mine.coordinateSourceUri,
+    coordinate_confidence: mine.coordinateConfidence,
+    coordinate_validation_eligible: mine.coordinateValidationEligible,
     data_provenance: evidence
       ? `synthetic_demo_mine_register · ${evidence.sourceLabel} · ${evidence.confidence}`
       : "synthetic_demo_mine_register",
@@ -538,8 +568,17 @@ export async function listMines() {
 }
 
 export function listLiveMines() {
-  return loadLiveBundle().mines.map(({ provenance: data_provenance, ...mine }) => ({
+  return loadLiveBundle().mines.map(({
+    provenance: data_provenance,
+    geometry_provenance,
+    geometry_confidence,
+    validation_eligible,
+    ...mine
+  }) => ({
     ...mine,
+    coordinate_source_uri: geometry_provenance.source_uri,
+    coordinate_confidence: geometry_confidence,
+    coordinate_validation_eligible: validation_eligible,
     data_provenance,
   }));
 }

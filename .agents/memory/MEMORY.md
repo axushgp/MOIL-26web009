@@ -3,3 +3,4 @@
 - [Imported workspace bootstrap](imported-workspace-bootstrap.md) — imported pnpm apps may need dependency install and dev-schema application before the first preview request.
 - [Live data provenance gate](live-data-provenance.md) — live mode requires validated source artifacts and a provenance-bearing fusion bundle, never credentials alone.
 - [Geometry evidence gate](geometry-evidence-gate.md) — locality points may orient a map, but only explicitly verified geometry may enter reserve validation.
+- [OpenAPI URI compatibility](openapi-uri-compatibility.md) — keep source URI fields as strings; this workspace's Orval/Zod 3 mapping rejects the URI format helper.
