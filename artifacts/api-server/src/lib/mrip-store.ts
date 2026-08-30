@@ -15,12 +15,71 @@ import {
 import { recommend } from "./rules-engine";
 import { loadLiveBundle } from "./live-adapters";
 
-const RESERVE_MODEL_VERSION = "fusion-v0.4";
+const RESERVE_MODEL_VERSION = "fusion-v0.5-coordinate-evidence";
 const FORECAST_MODEL_VERSION = "forecast-xgb-v0.3";
 const DEMO_RUN_AT = new Date("2026-08-29T09:00:00.000Z");
 const DEMO_START_DATE = "2026-05-31";
 
 type DemoMine = Omit<Mine, "createdAt">;
+
+type CoordinateEvidence = {
+  sourceLabel: string;
+  confidence: string;
+  validationEligible: boolean;
+};
+
+const COORDINATE_EVIDENCE: Record<string, CoordinateEvidence> = {
+  balaghat: {
+    sourceLabel: "Mindat locality record",
+    confidence: "public-source approximate",
+    validationEligible: true,
+  },
+  ukwa: {
+    sourceLabel: "Mindat locality record",
+    confidence: "public-source approximate",
+    validationEligible: true,
+  },
+  tirodi: {
+    sourceLabel: "South Tirodi Mine locality record",
+    confidence: "public mine locality",
+    validationEligible: true,
+  },
+  chikla: {
+    sourceLabel: "Mindat point + government mine report",
+    confidence: "government-corroborated locality",
+    validationEligible: true,
+  },
+  kandri: {
+    sourceLabel: "Government forest-clearance mine report",
+    confidence: "government report coordinate",
+    validationEligible: true,
+  },
+  mansar: {
+    sourceLabel: "ARMA 2018 published mine study",
+    confidence: "published study center",
+    validationEligible: true,
+  },
+  beldongri: {
+    sourceLabel: "The Diggings / USGS locality record",
+    confidence: "public-source approximate",
+    validationEligible: true,
+  },
+  gumgaon: {
+    sourceLabel: "Government lease envelope + locality point",
+    confidence: "government-corroborated locality",
+    validationEligible: true,
+  },
+  "dongri-buzurg": {
+    sourceLabel: "Mindat mine locality + government mine plan",
+    confidence: "public-source approximate",
+    validationEligible: true,
+  },
+  sitapatore: {
+    sourceLabel: "Mindat deposit point + MOIL unit register",
+    confidence: "public-source approximate",
+    validationEligible: true,
+  },
+};
 
 const SYNTHETIC_DEMO_MINES: DemoMine[] = [
   {
@@ -54,9 +113,9 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     name: "Tirodi",
     district: "Balaghat, Madhya Pradesh",
     mineType: "Underground",
-    coordinateStatus: "town proxy",
-    latitude: 21.68,
-    longitude: 79.72,
+    coordinateStatus: "public mine locality",
+    latitude: 21.68333,
+    longitude: 79.73333,
     depthM: null,
     reserveConfidence: 0.71,
     shortfallProbability: 0.27,
@@ -67,9 +126,9 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     name: "Chikla",
     district: "Bhandara, Maharashtra",
     mineType: "Underground",
-    coordinateStatus: "needs input",
-     latitude: null,
-     longitude: null,
+    coordinateStatus: "government-corroborated locality",
+    latitude: 21.54333,
+    longitude: 79.75389,
     depthM: null,
     reserveConfidence: 0.64,
     shortfallProbability: 0.42,
@@ -80,9 +139,9 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     name: "Kandri",
     district: "Nagpur, Maharashtra",
     mineType: "Underground",
-    coordinateStatus: "district placeholder",
-     latitude: null,
-     longitude: null,
+    coordinateStatus: "government report coordinate",
+    latitude: 21.4,
+    longitude: 79.266667,
     depthM: null,
     reserveConfidence: 0.58,
     shortfallProbability: 0.31,
@@ -93,9 +152,9 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     name: "Munsar / Mansar",
     district: "Nagpur, Maharashtra",
     mineType: "Underground",
-    coordinateStatus: "district placeholder",
-     latitude: null,
-     longitude: null,
+    coordinateStatus: "published study center",
+    latitude: 21.389444,
+    longitude: 79.287222,
     depthM: null,
     reserveConfidence: 0.62,
     shortfallProbability: 0.22,
@@ -106,9 +165,9 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     name: "Beldongri",
     district: "Nagpur, Maharashtra",
     mineType: "Underground",
-    coordinateStatus: "district placeholder",
-     latitude: null,
-     longitude: null,
+    coordinateStatus: "public-source approximate",
+    latitude: 21.3495,
+    longitude: 79.3003,
     depthM: null,
     reserveConfidence: 0.55,
     shortfallProbability: 0.29,
@@ -119,9 +178,9 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     name: "Gumgaon",
     district: "Nagpur, Maharashtra",
     mineType: "Underground",
-    coordinateStatus: "district placeholder",
-     latitude: null,
-     longitude: null,
+    coordinateStatus: "government-corroborated locality",
+    latitude: 21.39602,
+    longitude: 78.99197,
     depthM: null,
     reserveConfidence: 0.51,
     shortfallProbability: 0.38,
@@ -132,9 +191,9 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     name: "Dongri Buzurg",
     district: "Bhandara, Maharashtra",
     mineType: "Opencast",
-    coordinateStatus: "district placeholder",
-     latitude: null,
-     longitude: null,
+    coordinateStatus: "public-source approximate",
+    latitude: 21.548611,
+    longitude: 79.682778,
     depthM: null,
     reserveConfidence: 0.67,
     shortfallProbability: 0.19,
@@ -145,9 +204,9 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     name: "Sitapatore",
     district: "Bhandara, Maharashtra",
     mineType: "Underground",
-    coordinateStatus: "district placeholder",
-     latitude: null,
-     longitude: null,
+    coordinateStatus: "public-source approximate",
+    latitude: 21.66667,
+    longitude: 79.66667,
     depthM: null,
     reserveConfidence: 0.6,
     shortfallProbability: 0.25,
@@ -169,14 +228,17 @@ function distance(
   );
 }
 
-function syntheticReserveGrid() {
-  return Array.from({ length: 72 }, (_, index) => {
+function syntheticReserveGrid(excludedMineId?: string) {
+  return Array.from({ length: 144 }, (_, index) => {
     const row = Math.floor(index / 12);
     const column = index % 12;
-    const latitude = 21.08 + row * 0.105;
-    const longitude = 78.86 + column * 0.15;
+    const latitude = 20.95 + row * 0.1;
+    const longitude = 78.85 + column * 0.15;
     const locatedMines = SYNTHETIC_DEMO_MINES.filter(
-      (mine) => mine.latitude !== null && mine.longitude !== null,
+      (mine) =>
+        mine.mineId !== excludedMineId &&
+        mine.latitude !== null &&
+        mine.longitude !== null,
     );
     const nearestMine = locatedMines.length
       ? Math.min(
@@ -217,6 +279,43 @@ function syntheticReserveGrid() {
       computedAt: DEMO_RUN_AT,
     };
   });
+}
+
+function syntheticReserveValidation() {
+  const validationMines = SYNTHETIC_DEMO_MINES.filter(
+    (mine) =>
+      mine.latitude !== null &&
+      mine.longitude !== null &&
+      COORDINATE_EVIDENCE[mine.mineId]?.validationEligible,
+  );
+  const perMine = validationMines.map((mine) => {
+    const surface = syntheticReserveGrid(mine.mineId);
+    const nearestPoint = surface.reduce((closest, point) =>
+      distance(point.latitude, point.longitude, mine.latitude!, mine.longitude!) <
+      distance(closest.latitude, closest.longitude, mine.latitude!, mine.longitude!)
+        ? point
+        : closest,
+    );
+    const percentile =
+      (surface.filter(
+        (point) => point.reserveProbability <= nearestPoint.reserveProbability,
+      ).length /
+        surface.length) *
+      100;
+    return {
+      mine_id: mine.mineId,
+      percentile: Number(percentile.toFixed(1)),
+    };
+  });
+  const average =
+    perMine.reduce((sum, item) => sum + item.percentile, 0) / perMine.length;
+  return {
+    confirmed_mines_checked: perMine.length,
+    avg_percentile_rank: Number(average.toFixed(1)),
+    per_mine: perMine,
+    method:
+      "Leave-one-out percentile ranking on 10 source-backed mine locality points; nearest synthetic reserve cell sampled",
+  };
 }
 
 function dailyPlanFor(mineId: string) {
@@ -266,10 +365,11 @@ async function hasMineRows() {
   return rows.length > 0;
 }
 
-async function hasReserveRows() {
+async function hasCurrentReserveRows() {
   const rows = await db
     .select({ id: reserveGridTable.id })
     .from(reserveGridTable)
+    .where(eq(reserveGridTable.modelVersion, RESERVE_MODEL_VERSION))
     .limit(1);
   return rows.length > 0;
 }
@@ -284,11 +384,6 @@ async function hasProductionRows() {
 
 async function seedSyntheticPreviewData() {
   for (const mine of SYNTHETIC_DEMO_MINES) {
-    // The development database may retain the original imported schema, where
-    // mine coordinates are non-null. Do not invent coordinates for unresolved
-    // mine locations; those records remain documented in the source constant
-    // but are omitted from the seeded operational register.
-    if (mine.latitude === null || mine.longitude === null) continue;
     await db
       .insert(minesTable)
       .values(mine)
@@ -309,6 +404,7 @@ async function seedSyntheticPreviewData() {
       });
   }
 
+  const validation = syntheticReserveValidation();
   await db
     .insert(modelRunsTable)
     .values([
@@ -316,16 +412,16 @@ async function seedSyntheticPreviewData() {
         modelVersion: RESERVE_MODEL_VERSION,
         module: "reserve-mapping",
         trainedAt: DEMO_RUN_AT,
-        nPositiveExamples: 3,
-        loocvAvgPercentile: 82.4,
-        inSampleAvgPercentile: 91.2,
+        nPositiveExamples: validation.confirmed_mines_checked,
+        loocvAvgPercentile: validation.avg_percentile_rank,
+        inSampleAvgPercentile: null,
         featureImportances: {
           spectral_score: 0.46,
           structural_score: 0.39,
           mine_influence: 0.15,
         },
         notes:
-          "Synthetic preview grid; public-source approximate mine points; PostGIS unavailable in this environment.",
+          "Synthetic preview grid; source-backed mine locality points; LOOCV is computed per held-out point and is not scientific evidence until external datasets are connected.",
       },
       {
         modelVersion: FORECAST_MODEL_VERSION,
@@ -345,7 +441,8 @@ async function seedSyntheticPreviewData() {
     ])
     .onConflictDoNothing();
 
-  if (!(await hasReserveRows())) {
+  if (!(await hasCurrentReserveRows())) {
+    await db.delete(reserveGridTable);
     await db.insert(reserveGridTable).values(syntheticReserveGrid());
   }
 
@@ -367,13 +464,16 @@ export function initializeMripStore() {
 }
 
 function toMineResponse(mine: Mine) {
+  const evidence = COORDINATE_EVIDENCE[mine.mineId];
   return {
     mine_id: mine.mineId,
     name: mine.name,
     district: mine.district,
     mine_type: mine.mineType,
     coordinate_status: mine.coordinateStatus,
-    data_provenance: "synthetic_demo_mine_register",
+    data_provenance: evidence
+      ? `synthetic_demo_mine_register · ${evidence.sourceLabel}`
+      : "synthetic_demo_mine_register",
     latitude: mine.latitude,
     longitude: mine.longitude,
     depth_m: mine.depthM,
@@ -446,6 +546,10 @@ export function getLiveProductionHistory(mineId: string, days: number) {
 
 export function getLiveValidation() {
   return loadLiveBundle().validation;
+}
+
+export function getSyntheticValidation() {
+  return syntheticReserveValidation();
 }
 
 export function getLiveForecast(mineId: string, horizon: number) {

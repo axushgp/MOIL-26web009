@@ -24,6 +24,7 @@ import {
   getLiveProductionHistory,
   getLiveRecommendation,
   getLiveValidation,
+  getSyntheticValidation,
   listLiveMines,
   listLiveReservePoints,
   getProductionHistory,
@@ -90,17 +91,8 @@ router.get("/reserves/heatmap", async (req, res, next) => {
 });
 
 router.get("/reserves/validation", (_req, res) => {
-  const validation = getDataMode().mode === "live" ? getLiveValidation() : {
-      confirmed_mines_checked: 3,
-      avg_percentile_rank: 82.4,
-      per_mine: [
-        { mine_id: "balaghat", percentile: 91.2 },
-        { mine_id: "ukwa", percentile: 83.4 },
-        { mine_id: "tirodi", percentile: 72.6 },
-      ],
-      method:
-        "Leave-one-out percentile ranking on public-source approximate mine points",
-    };
+  const validation =
+    getDataMode().mode === "live" ? getLiveValidation() : getSyntheticValidation();
   res.json(GetReserveValidationResponse.parse(validation));
 });
 

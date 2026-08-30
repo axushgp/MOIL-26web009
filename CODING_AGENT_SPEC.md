@@ -99,17 +99,22 @@ Ask these explicitly. Do not proceed past the relevant phase until answered.
 
 ## 4. VERIFIED GROUND-TRUTH DATA (cite these, do not alter without checking sources)
 
-**MOIL operates 10 mines** across Nagpur/Bhandara districts (Maharashtra) and Balaghat district (Madhya Pradesh). Publicly sourced approximate coordinates for named mines (confirm/refine against MOIL lease documents if available — flag in code as `# PUBLIC_SOURCE_APPROX, confirm before final submission`):
+**MOIL operates 10 mines** across Nagpur/Bhandara districts (Maharashtra) and Balaghat district (Madhya Pradesh). The preview now carries source-backed screening points for all ten mines. These are not lease-boundary surveys: each coordinate must retain its evidence source and confidence label, and any final scientific run should replace screening points with MOIL lease or GSI Bhukosh geometry where available.
 
 | Mine | District | Type | Approx. coordinates | Source |
 |---|---|---|---|---|
-| Balaghat (Bharveli) | Balaghat, MP | Underground, largest, ~383m depth | 21.80°N, 80.18°E | mindat.org locality record; mining since 1903, 183 ha |
-| Ukwa | Balaghat, MP | Opencast | 21.97°N, 80.47°E | mindat.org locality record, ~43km from Balaghat town |
-| Tirodi | Balaghat, MP | — | 21.68°N, 79.72°E | Public town coordinates (Tirodi tehsil), mine location proxy |
-| Chikla | Bhandara, Maharashtra | Underground | Bhandara district — exact coordinates not yet sourced, ASK USER or refine via Bhukosh | mindat.org: ore occurs at the contact of Mansar Formation mica schist and Sitasaongi Formation quartz-mica schist, both within the Sausar Group; **ore body is structurally controlled — occurs at the core of a plunging synform**; braunite is the principal ore mineral with hausmannite, vredenburgite, jacobsite; gondite bands present |
+| Balaghat (Bharveli) | Balaghat, MP | Underground, largest, ~383m depth | 21.80000°N, 80.18000°E | Public Mindat locality record; public-source approximate |
+| Ukwa | Balaghat, MP | Opencast | 21.97000°N, 80.47000°E | Public Mindat locality record; public-source approximate |
+| Tirodi | Balaghat, MP | Opencast | 21.68333°N, 79.73333°E | South Tirodi Mine locality record; public mine locality |
+| Chikla | Bhandara, Maharashtra | Underground | 21.54333°N, 79.75389°E | Mindat Chikla locality point, corroborated by a government Chikla mine report at 21°31'N, 79°45'E; government-corroborated locality |
+| Kandri | Nagpur, Maharashtra | Underground | 21.40000°N, 79.26667°E | Government forest-clearance mine report: 21°24'N, 79°16'E; government report coordinate |
+| Munsar / Mansar | Nagpur, Maharashtra | Underground | 21.38944°N, 79.28722°E | ARMA 2018 published mine study center: 21°23'22"N, 79°17'14"E; published study center |
+| Beldongri | Nagpur, Maharashtra | Underground | 21.34950°N, 79.30030°E | The Diggings/USGS locality point, with mine identity corroborated by MOIL's unit register; public-source approximate |
+| Gumgaon | Nagpur, Maharashtra | Underground | 21.39602°N, 78.99197°E | Public Gumgaon locality point within the government environmental-clearance lease envelope; government-corroborated locality |
+| Dongri Buzurg | Bhandara, Maharashtra | Opencast | 21.54861°N, 79.68278°E | Mindat mine locality point, with mine identity corroborated by MOIL's unit register and government mine plan; public-source approximate |
+| Sitapatore | Balaghat, MP | Opencast | 21.66667°N, 79.66667°E | Mindat Sitapatore deposit point; MOIL's unit register confirms Sitapatore Mine at Sukli; public-source approximate |
 
-**PRIORITY NOTE:** Chikla is the single richest structural-control precedent in this table (the plunging-synform detail is exactly what Module 1's lineament-proximity feature is designed to capture) but it's also the mine with no confirmed coordinates yet. Resolving Chikla's coordinates should be the team's first ask-the-user priority in Phase 0 — without it, the structural feature is being validated only against the three flatter, less-diagnostic mine records (Balaghat, Ukwa, Tirodi), and the best evidence for why the structural feature should matter at all sits unused in the training set.
-| Kandri, Mansar, Beldongri, Gumgaon, Dongri Buzurg, Sitapatore | Nagpur/Bhandara | Mix of underground/opencast | Not yet sourced with confidence — **ASK USER to confirm or accept district-center coordinates as coarse placeholders** | — |
+**PRIORITY NOTE:** Chikla is the single richest structural-control precedent in this table (the plunging-synform detail is exactly what Module 1's lineament-proximity feature is designed to capture). Its source-backed point is now included, but it remains a locality point rather than a surveyed lease centroid. The preview therefore reports the LOOCV evidence as source-backed screening evidence, not as a final geological validation.
 
 **Geological framework:** All MOIL ore sits within the **Sausar Group**, a Mesoproterozoic metasedimentary fold belt ~200km long (Balaghat to Nagpur), ~25km wide, striking ENE-WSW to NNE-SSW, dipping 45-70° south. Ore occurs as **gondite** (manganese-silicate metasediment) at specific stratigraphic horizons, frequently at formation contacts (e.g., Mansar–Sitasaongi contact at Chikla), and is **structurally concentrated in fold hinges and shear zones** — the Chikla example (ore at the core of a plunging synform) is the clearest documented case and should be used as the primary structural-control template when building the lineament/fold-proximity feature in Module 1. Ore mineral assemblage: braunite, bixbyite, hausmannite, hollandite, jacobsite, vredenburgite, pyrolusite, cryptomelane, psilomelane.
 
@@ -199,13 +204,13 @@ spec. Create ingestion/config.py containing:
   - AOI bounding box covering the Balaghat-Bhandara-Nagpur corridor
     (use bounds: lat 20.9 to 22.1, lon 79.0 to 80.6 — this covers all
     mines listed in Section 4 with margin for unexplored terrain)
-  - A MINES dict with the coordinates from Section 4, each entry tagged
-    with a "confidence" field: "confirmed" for mines with a cited source,
-    "placeholder" for district-center estimates
-  - Do NOT fabricate coordinates for Kandri, Mansar, Beldongri, Gumgaon,
-    Dongri Buzurg, or Sitapatore. Mark them as
-    "coordinates": None, "status": "NEEDS_USER_INPUT" and print a clear
-    warning at import time listing which mines are missing coordinates.
+  - A MINES dict with the source-backed screening coordinates from Section 4,
+     each entry tagged with a "confidence" field and source URI. Preserve
+     "approximate" or "locality" confidence where the source is not a lease
+     survey; do not upgrade it to "confirmed" without stronger evidence.
+   - Do NOT fabricate coordinates. If a mine has no cited point or envelope,
+     mark it as "coordinates": None, "status": "NEEDS_USER_INPUT" and print a
+     clear warning at import time listing which mines are missing coordinates.
 
 Then write ingestion/gee_client.py with functions:
   - authenticate() — reads service account JSON path from .env,
@@ -251,45 +256,53 @@ AOI_BOUNDS = {
 MINES = {
     "balaghat_bharveli": {
         "lat": 21.80, "lon": 80.18, "district": "Balaghat, MP",
-        "type": "underground", "confidence": "confirmed",
-        "source": "mindat.org locality record; op. since 1903, 183 ha"
+        "type": "underground", "confidence": "public_source_approximate",
+        "source": "Mindat locality record; confirm against MOIL lease documents"
     },
     "ukwa": {
         "lat": 21.97, "lon": 80.47, "district": "Balaghat, MP",
-        "type": "opencast", "confidence": "confirmed",
-        "source": "mindat.org locality record, ~43km from Balaghat town"
+        "type": "opencast", "confidence": "public_source_approximate",
+        "source": "Mindat locality record; confirm against MOIL lease documents"
     },
     "tirodi": {
-        "lat": 21.68, "lon": 79.72, "district": "Balaghat, MP",
-        "type": "unspecified", "confidence": "town_proxy",
-        "source": "Tirodi tehsil public coordinates, used as mine-area proxy"
+        "lat": 21.68333, "lon": 79.73333, "district": "Balaghat, MP",
+        "type": "opencast", "confidence": "public_mine_locality",
+        "source": "South Tirodi Mine locality record; MOIL unit register"
     },
     "chikla": {
-        "lat": None, "lon": None, "district": "Bhandara, Maharashtra",
-        "type": "underground", "confidence": "NEEDS_USER_INPUT",
-        "source": "geology confirmed (Mansar-Sitasaongi contact, "
-                   "plunging synform) but coordinates not yet sourced"
+        "lat": 21.54333, "lon": 79.75389,
+        "district": "Bhandara, Maharashtra",
+        "type": "underground", "confidence": "government_corroborated_locality",
+        "source": "Mindat point corroborated by Govt. Chikla mine report"
     },
-    "kandri": {"lat": None, "lon": None, "district": "Nagpur, Maharashtra",
-               "confidence": "NEEDS_USER_INPUT"},
-    "mansar": {"lat": None, "lon": None, "district": "Nagpur, Maharashtra",
-               "confidence": "NEEDS_USER_INPUT"},
-    "beldongri": {"lat": None, "lon": None, "district": "Nagpur, Maharashtra",
-                  "confidence": "NEEDS_USER_INPUT"},
-    "gumgaon": {"lat": None, "lon": None, "district": "Nagpur, Maharashtra",
-                "confidence": "NEEDS_USER_INPUT"},
-    "dongri_buzurg": {"lat": None, "lon": None, "district": "Bhandara, Maharashtra",
-                       "type": "opencast", "confidence": "NEEDS_USER_INPUT"},
-    "sitapatore": {"lat": None, "lon": None, "district": "Bhandara, Maharashtra",
-                   "type": "opencast", "confidence": "NEEDS_USER_INPUT"},
+    "kandri": {"lat": 21.4, "lon": 79.266667,
+               "district": "Nagpur, Maharashtra",
+               "confidence": "government_report"},
+    "mansar": {"lat": 21.389444, "lon": 79.287222,
+               "district": "Nagpur, Maharashtra",
+               "confidence": "published_mine_study"},
+    "beldongri": {"lat": 21.3495, "lon": 79.3003,
+                  "district": "Nagpur, Maharashtra",
+                  "confidence": "public_locality_approximate"},
+    "gumgaon": {"lat": 21.39602, "lon": 78.99197,
+                "district": "Nagpur, Maharashtra",
+                "confidence": "government_envelope_corroborated"},
+    "dongri_buzurg": {"lat": 21.548611, "lon": 79.682778,
+                      "district": "Bhandara, Maharashtra",
+                      "type": "opencast",
+                      "confidence": "public_locality_approximate"},
+    "sitapatore": {"lat": 21.66667, "lon": 79.66667,
+                   "district": "Bhandara, Maharashtra",
+                   "type": "opencast",
+                   "confidence": "public_locality_approximate"},
 }
 
 def check_mine_coordinates():
     missing = [k for k, v in MINES.items() if v.get("lat") is None]
     if missing:
-        print(f"[WARNING] {len(missing)} mines missing confirmed coordinates: "
+        print(f"[WARNING] {len(missing)} mines missing source-backed coordinates: "
               f"{missing}. Reserve-mapping validation will only use the "
-              f"{len(MINES) - len(missing)} confirmed locations until these "
+              f"{len(MINES) - len(missing)} source-backed locations until these "
               f"are filled in. Ask the team for MOIL lease document "
               f"coordinates or GSI Bhukosh point locations for these mines.")
     return missing
@@ -451,8 +464,8 @@ Implement module1_reserve_mapping/fusion_model.py with:
 
 Then implement module1_reserve_mapping/validate.py:
    IMPORTANT — do not validate the model on the same points it was
-   trained on. With only 3-4 confirmed positives, checking where those
-   exact points rank after training ON those exact points is circular
+   trained on. With a small set of confirmed or source-backed positives,
+   checking where those exact points rank after training ON those exact points is circular
    and will produce an artificially strong number that means nothing.
    If an evaluator asks "how did you validate this," a circular
    validation is worse than no validation — it signals the team didn't
@@ -645,9 +658,9 @@ Write an end-to-end integration test (tests/test_e2e.py) that:
      too time-costly for the remaining budget)
 
 Then write a DEMO_SCRIPT.md with this exact narrative structure:
-  1. Open on the reserve probability map. State explicitly: "Red
-     zones show where our model, trained only on 3-4 confirmed mine
-     locations, ranks reserve probability highest across the belt."
+   1. Open on the reserve probability map. State explicitly: "Red
+      zones show where our deterministic screening surface ranks reserve
+      probability highest around source-backed mine locality points."
   2. Zoom to Balaghat, point out the known mine sits in a high-
      probability zone — this is the validation moment, say the
      LOOCV average percentile from Phase 2's validate.py out loud,
@@ -884,7 +897,7 @@ Listing this out loud is a strength in the demo, not a weakness — it shows the
 
 ## 13. FINAL PRE-SUBMISSION CHECKLIST
 
-- [ ] All `NEEDS_USER_INPUT` mine coordinates either filled in or explicitly acknowledged as unresolved in the demo narrative — Chikla is the priority (see Section 4 note)
+- [ ] Every mine coordinate has a recorded source and confidence; replace locality screening points with MOIL lease or GSI Bhukosh geometry before final scientific use
 - [ ] `db/seed.py` has actually been run and the `mines` table is populated — don't discover at demo time that it was only ever specified, never executed
 - [ ] Raster grid alignment (`grid_alignment.py`) confirmed to run before structural/fusion feature stacking — spot check that spectral, lineament, and boundary-distance rasters have identical shape and geotransform before they're combined
 - [ ] Validation number quoted in the demo is the **LOOCV** average, explicitly labeled as such — not the in-sample number, and the difference between the two is understood by whoever presents
