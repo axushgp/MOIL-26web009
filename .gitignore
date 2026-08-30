@@ -18,6 +18,8 @@ node_modules
 /secrets/
 /data/raw/
 /data/processed/
+/data/synthetic/*.csv
+!.gitkeep
 
 # IDEs and editors
 /.idea
@@ -26,6 +28,7 @@ node_modules
 .c9/
 *.launch
 .settings/
+*.ipynb_checkpoints/
 *.sublime-workspace
 
 # IDE - VSCode

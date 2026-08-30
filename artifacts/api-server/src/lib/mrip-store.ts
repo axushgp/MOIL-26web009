@@ -67,8 +67,8 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     district: "Bhandara, Maharashtra",
     mineType: "Underground",
     coordinateStatus: "needs input",
-    latitude: 21.34,
-    longitude: 79.74,
+     latitude: null,
+     longitude: null,
     depthM: null,
     reserveConfidence: 0.64,
     shortfallProbability: 0.42,
@@ -80,8 +80,8 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     district: "Nagpur, Maharashtra",
     mineType: "Underground",
     coordinateStatus: "district placeholder",
-    latitude: 21.31,
-    longitude: 79.2,
+     latitude: null,
+     longitude: null,
     depthM: null,
     reserveConfidence: 0.58,
     shortfallProbability: 0.31,
@@ -93,8 +93,8 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     district: "Nagpur, Maharashtra",
     mineType: "Underground",
     coordinateStatus: "district placeholder",
-    latitude: 21.28,
-    longitude: 79.13,
+     latitude: null,
+     longitude: null,
     depthM: null,
     reserveConfidence: 0.62,
     shortfallProbability: 0.22,
@@ -106,8 +106,8 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     district: "Nagpur, Maharashtra",
     mineType: "Underground",
     coordinateStatus: "district placeholder",
-    latitude: 21.25,
-    longitude: 79.05,
+     latitude: null,
+     longitude: null,
     depthM: null,
     reserveConfidence: 0.55,
     shortfallProbability: 0.29,
@@ -119,8 +119,8 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     district: "Nagpur, Maharashtra",
     mineType: "Underground",
     coordinateStatus: "district placeholder",
-    latitude: 21.18,
-    longitude: 79.08,
+     latitude: null,
+     longitude: null,
     depthM: null,
     reserveConfidence: 0.51,
     shortfallProbability: 0.38,
@@ -132,8 +132,8 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     district: "Bhandara, Maharashtra",
     mineType: "Opencast",
     coordinateStatus: "district placeholder",
-    latitude: 21.4,
-    longitude: 79.65,
+     latitude: null,
+     longitude: null,
     depthM: null,
     reserveConfidence: 0.67,
     shortfallProbability: 0.19,
@@ -145,8 +145,8 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     district: "Bhandara, Maharashtra",
     mineType: "Underground",
     coordinateStatus: "district placeholder",
-    latitude: 21.46,
-    longitude: 79.6,
+     latitude: null,
+     longitude: null,
     depthM: null,
     reserveConfidence: 0.6,
     shortfallProbability: 0.25,
@@ -174,11 +174,16 @@ function syntheticReserveGrid() {
     const column = index % 12;
     const latitude = 21.08 + row * 0.105;
     const longitude = 78.86 + column * 0.15;
-    const nearestMine = Math.min(
-      ...SYNTHETIC_DEMO_MINES.map((mine) =>
-        distance(latitude, longitude, mine.latitude, mine.longitude),
-      ),
+    const locatedMines = SYNTHETIC_DEMO_MINES.filter(
+      (mine) => mine.latitude !== null && mine.longitude !== null,
     );
+    const nearestMine = locatedMines.length
+      ? Math.min(
+        ...locatedMines.map((mine) =>
+        distance(latitude, longitude, mine.latitude, mine.longitude),
+        ),
+      )
+      : Infinity;
     const structuralBand =
       0.45 + 0.25 * Math.sin((longitude - 78.7) * 7 + latitude * 2.2);
     const spectralBand =
@@ -277,8 +282,25 @@ async function hasProductionRows() {
 }
 
 async function seedSyntheticPreviewData() {
-  if (!(await hasMineRows())) {
-    await db.insert(minesTable).values(SYNTHETIC_DEMO_MINES);
+  for (const mine of SYNTHETIC_DEMO_MINES) {
+    await db
+      .insert(minesTable)
+      .values(mine)
+      .onConflictDoUpdate({
+        target: minesTable.mineId,
+        set: {
+          name: mine.name,
+          district: mine.district,
+          mineType: mine.mineType,
+          coordinateStatus: mine.coordinateStatus,
+          latitude: mine.latitude,
+          longitude: mine.longitude,
+          depthM: mine.depthM,
+          reserveConfidence: mine.reserveConfidence,
+          shortfallProbability: mine.shortfallProbability,
+          dominantDriver: mine.dominantDriver,
+        },
+      });
   }
 
   await db

@@ -58,8 +58,10 @@ export interface Mine {
   district: string;
   mine_type: string;
   coordinate_status: string;
-  latitude: number;
-  longitude: number;
+  /** @nullable */
+  latitude?: number | null;
+  /** @nullable */
+  longitude?: number | null;
   /** @nullable */
   depth_m?: number | null;
   reserve_confidence?: number;

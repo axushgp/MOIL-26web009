@@ -233,15 +233,15 @@ components:
         - status
     Mine:
       type: object
-      required: [mine_id, name, district, mine_type, coordinate_status, latitude, longitude]
+      required: [mine_id, name, district, mine_type, coordinate_status]
       properties:
         mine_id: { type: string }
         name: { type: string }
         district: { type: string }
         mine_type: { type: string }
         coordinate_status: { type: string }
-        latitude: { type: number }
-        longitude: { type: number }
+        latitude: { type: ["number", "null"] }
+        longitude: { type: ["number", "null"] }
         depth_m: { type: ["number", "null"] }
         reserve_confidence: { type: number }
         shortfall_probability: { type: number }

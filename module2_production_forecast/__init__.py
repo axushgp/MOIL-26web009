@@ -1,0 +1,1 @@
+"""Production forecasting with explicit synthetic and real-weather provenance."""

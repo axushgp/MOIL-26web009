@@ -1,0 +1,22 @@
+# Phase-0 scientific pipeline dependencies. Major-version ranges are deliberate;
+# exact lockfiles can be added after the source datasets and CRS are confirmed.
+earthengine-api>=0.1,<1.0
+geemap>=0.35,<1.0
+rasterio>=1.3,<2.0
+geopandas>=0.14,<2.0
+shapely>=2.0,<3.0
+opencv-python>=4.8,<5.0
+scipy>=1.10,<2.0
+scikit-learn>=1.3,<2.0
+xgboost>=2.0,<4.0
+shap>=0.44,<1.0
+pandas>=2.0,<3.0
+numpy>=1.24,<3.0
+fastapi>=0.110,<1.0
+uvicorn>=0.27,<1.0
+psycopg2-binary>=2.9,<3.0
+pydantic>=2.0,<3.0
+cdsapi>=0.6,<1.0
+ollama>=0.3,<1.0
+python-dotenv>=1.0,<2.0
+pytest>=8.0,<9.0
