@@ -26,6 +26,11 @@ type Provenance = {
   checksum: string;
 };
 
+type GeoJsonGeometry = {
+  type: "Point" | "Polygon" | "MultiPolygon";
+  coordinates: number[] | number[][] | number[][][];
+};
+
 export type LiveBundle = {
   generated_at: string;
   source_runs: Array<{
@@ -45,6 +50,11 @@ export type LiveBundle = {
     shortfall_probability: number;
     dominant_driver: string;
     provenance: string;
+    geometry: GeoJsonGeometry;
+    geometry_status: "verified_point" | "verified_envelope";
+    geometry_confidence: string;
+    validation_eligible: boolean;
+    geometry_provenance: Provenance;
   }>;
   reserve_points: Array<{
     latitude: number;
@@ -116,6 +126,12 @@ function hasProvenance(value: unknown): value is Provenance {
   if (!isRecord(value)) return false;
   return ["source_id", "source_uri", "source_date", "retrieved_at", "checksum"]
     .every((key) => typeof value[key] === "string" && value[key].length > 0);
+}
+
+function hasGeometry(value: unknown): value is GeoJsonGeometry {
+  if (!isRecord(value)) return false;
+  if (!["Point", "Polygon", "MultiPolygon"].includes(String(value.type))) return false;
+  return Array.isArray(value.coordinates) && value.coordinates.length > 0;
 }
 
 function fileHasProvenance(filePath: string) {
@@ -303,12 +319,31 @@ function isLiveBundle(value: unknown): value is LiveBundle {
   if (!arrays.every((key) => Array.isArray(value[key]))) return false;
   if (!isRecord(value.validation) || typeof value.generated_at !== "string") return false;
   if (!(value.source_runs as unknown[]).every((run) => isRecord(run) && typeof run.source_id === "string" && hasProvenance(run.provenance))) return false;
-  if (!(value.mines as unknown[]).every((mine) => isRecord(mine) && typeof mine.provenance === "string" && typeof mine.latitude === "number" && typeof mine.longitude === "number")) return false;
+  if (!(value.mines as unknown[]).every((mine) =>
+    isRecord(mine) &&
+    typeof mine.provenance === "string" &&
+    typeof mine.latitude === "number" &&
+    typeof mine.longitude === "number" &&
+    hasGeometry(mine.geometry) &&
+    ["verified_point", "verified_envelope"].includes(String(mine.geometry_status)) &&
+    typeof mine.geometry_confidence === "string" &&
+    typeof mine.validation_eligible === "boolean" &&
+    hasProvenance(mine.geometry_provenance)
+  )) return false;
   if (!(value.reserve_points as unknown[]).every((point) => isRecord(point) && typeof point.data_provenance === "string")) return false;
   if (!(value.production_history as unknown[]).every((row) => isRecord(row) && typeof row.data_provenance === "string")) return false;
   if (!(value.forecasts as unknown[]).every((forecast) => isRecord(forecast) && typeof forecast.provenance === "string")) return false;
   if (!(value.recommendations as unknown[]).every((recommendation) => isRecord(recommendation) && typeof recommendation.provenance === "string")) return false;
   if (!isRecord(value.validation) || typeof value.validation.method !== "string" || !Array.isArray(value.validation.per_mine)) return false;
+  const eligibleMineIds = new Set(
+    (value.mines as Array<Record<string, unknown>>)
+      .filter((mine) => mine.validation_eligible === true)
+      .map((mine) => mine.mine_id)
+      .filter((mineId): mineId is string => typeof mineId === "string"),
+  );
+  if (!(value.validation.per_mine as unknown[]).every(
+    (item) => isRecord(item) && typeof item.mine_id === "string" && eligibleMineIds.has(item.mine_id),
+  )) return false;
   return true;
 }
 

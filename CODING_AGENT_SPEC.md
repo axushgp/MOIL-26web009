@@ -99,22 +99,22 @@ Ask these explicitly. Do not proceed past the relevant phase until answered.
 
 ## 4. VERIFIED GROUND-TRUTH DATA (cite these, do not alter without checking sources)
 
-**MOIL operates 10 mines** across Nagpur/Bhandara districts (Maharashtra) and Balaghat district (Madhya Pradesh). The preview now carries source-backed screening points for all ten mines. These are not lease-boundary surveys: each coordinate must retain its evidence source and confidence label, and any final scientific run should replace screening points with MOIL lease or GSI Bhukosh geometry where available.
+**MOIL operates 10 mines** across Nagpur/Bhandara districts (Maharashtra) and Balaghat district (Madhya Pradesh). The preview carries source-backed screening points for all ten mines and validated geometry evidence for four. These are not lease-boundary surveys: each coordinate must retain its evidence source and confidence label, and any final scientific run should replace screening points with MOIL lease or GSI Bhukosh geometry where available.
 
 | Mine | District | Type | Approx. coordinates | Source |
 |---|---|---|---|---|
-| Balaghat (Bharveli) | Balaghat, MP | Underground, largest, ~383m depth | 21.80000°N, 80.18000°E | Public Mindat locality record; public-source approximate |
-| Ukwa | Balaghat, MP | Opencast | 21.97000°N, 80.47000°E | Public Mindat locality record; public-source approximate |
-| Tirodi | Balaghat, MP | Opencast | 21.68333°N, 79.73333°E | South Tirodi Mine locality record; public mine locality |
-| Chikla | Bhandara, Maharashtra | Underground | 21.54333°N, 79.75389°E | Mindat Chikla locality point, corroborated by a government Chikla mine report at 21°31'N, 79°45'E; government-corroborated locality |
-| Kandri | Nagpur, Maharashtra | Underground | 21.40000°N, 79.26667°E | Government forest-clearance mine report: 21°24'N, 79°16'E; government report coordinate |
-| Munsar / Mansar | Nagpur, Maharashtra | Underground | 21.38944°N, 79.28722°E | ARMA 2018 published mine study center: 21°23'22"N, 79°17'14"E; published study center |
-| Beldongri | Nagpur, Maharashtra | Underground | 21.34950°N, 79.30030°E | The Diggings/USGS locality point, with mine identity corroborated by MOIL's unit register; public-source approximate |
-| Gumgaon | Nagpur, Maharashtra | Underground | 21.39602°N, 78.99197°E | Public Gumgaon locality point within the government environmental-clearance lease envelope; government-corroborated locality |
-| Dongri Buzurg | Bhandara, Maharashtra | Opencast | 21.54861°N, 79.68278°E | Mindat mine locality point, with mine identity corroborated by MOIL's unit register and government mine plan; public-source approximate |
-| Sitapatore | Balaghat, MP | Opencast | 21.66667°N, 79.66667°E | Mindat Sitapatore deposit point; MOIL's unit register confirms Sitapatore Mine at Sukli; public-source approximate |
+| Balaghat (Bharveli) | Balaghat, MP | Underground, largest, ~383m depth | 21.80000°N, 80.18000°E | Mindat locality; screening-only / low confidence |
+| Ukwa | Balaghat, MP | Opencast | 21.97000°N, 80.47000°E | Mindat locality; screening-only / low confidence |
+| Tirodi | Balaghat, MP | Opencast | 21.68333°N, 79.73333°E | South Tirodi Mine locality; screening-only / low confidence |
+| Chikla | Bhandara, Maharashtra | Underground | 21.54333°N, 79.75389°E | Mindat Chikla mine point corroborated by government mine report; verified point / medium confidence |
+| Kandri | Nagpur, Maharashtra | Underground | 21.41250°N, 79.26667°E | Government environmental-clearance mine record; verified point / high confidence |
+| Munsar / Mansar | Nagpur, Maharashtra | Underground | 21.38944°N, 79.28722°E | ARMA 2018 published mine study center; verified point / medium confidence |
+| Beldongri | Nagpur, Maharashtra | Underground | 21.34950°N, 79.30030°E | The Diggings/USGS locality; screening-only / low confidence |
+| Gumgaon | Nagpur, Maharashtra | Underground | 21.40156°N, 78.97667°E | Government GumGaon lease envelope represented by its centroid; verified envelope / medium confidence |
+| Dongri Buzurg | Bhandara, Maharashtra | Opencast | 21.54861°N, 79.68278°E | Mindat mine locality plus government mine-plan identity; screening-only / low confidence |
+| Sitapatore | Balaghat, MP | Opencast | 21.66667°N, 79.66667°E | Mindat deposit plus MOIL unit identity; screening-only / low confidence |
 
-**PRIORITY NOTE:** Chikla is the single richest structural-control precedent in this table (the plunging-synform detail is exactly what Module 1's lineament-proximity feature is designed to capture). Its source-backed point is now included, but it remains a locality point rather than a surveyed lease centroid. The preview therefore reports the LOOCV evidence as source-backed screening evidence, not as a final geological validation.
+**PRIORITY NOTE:** Chikla is the single richest structural-control precedent in this table (the plunging-synform detail is exactly what Module 1's lineament-proximity feature is designed to capture). Its mine-specific point is now included as validated geometry evidence, but it remains a point rather than a surveyed lease polygon. The preview keeps the six locality-only points visible for orientation while excluding them from final LOOCV.
 
 **Geological framework:** All MOIL ore sits within the **Sausar Group**, a Mesoproterozoic metasedimentary fold belt ~200km long (Balaghat to Nagpur), ~25km wide, striking ENE-WSW to NNE-SSW, dipping 45-70° south. Ore occurs as **gondite** (manganese-silicate metasediment) at specific stratigraphic horizons, frequently at formation contacts (e.g., Mansar–Sitasaongi contact at Chikla), and is **structurally concentrated in fold hinges and shear zones** — the Chikla example (ore at the core of a plunging synform) is the clearest documented case and should be used as the primary structural-control template when building the lineament/fold-proximity feature in Module 1. Ore mineral assemblage: braunite, bixbyite, hausmannite, hollandite, jacobsite, vredenburgite, pyrolusite, cryptomelane, psilomelane.
 
@@ -275,7 +275,7 @@ MINES = {
         "type": "underground", "confidence": "government_corroborated_locality",
         "source": "Mindat point corroborated by Govt. Chikla mine report"
     },
-    "kandri": {"lat": 21.4, "lon": 79.266667,
+    "kandri": {"lat": 21.4125, "lon": 79.266667,
                "district": "Nagpur, Maharashtra",
                "confidence": "government_report"},
     "mansar": {"lat": 21.389444, "lon": 79.287222,
@@ -284,7 +284,7 @@ MINES = {
     "beldongri": {"lat": 21.3495, "lon": 79.3003,
                   "district": "Nagpur, Maharashtra",
                   "confidence": "public_locality_approximate"},
-    "gumgaon": {"lat": 21.39602, "lon": 78.99197,
+    "gumgaon": {"lat": 21.401557, "lon": 78.976669,
                 "district": "Nagpur, Maharashtra",
                 "confidence": "government_envelope_corroborated"},
     "dongri_buzurg": {"lat": 21.548611, "lon": 79.682778,

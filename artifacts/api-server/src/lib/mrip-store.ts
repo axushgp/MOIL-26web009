@@ -15,7 +15,7 @@ import {
 import { recommend } from "./rules-engine";
 import { loadLiveBundle } from "./live-adapters";
 
-const RESERVE_MODEL_VERSION = "fusion-v0.5-coordinate-evidence";
+const RESERVE_MODEL_VERSION = "fusion-v0.6-validated-geometry";
 const FORECAST_MODEL_VERSION = "forecast-xgb-v0.3";
 const DEMO_RUN_AT = new Date("2026-08-29T09:00:00.000Z");
 const DEMO_START_DATE = "2026-05-31";
@@ -25,6 +25,7 @@ type DemoMine = Omit<Mine, "createdAt">;
 type CoordinateEvidence = {
   sourceLabel: string;
   confidence: string;
+  geometryStatus: "verified_point" | "verified_envelope" | "screening_only";
   validationEligible: boolean;
 };
 
@@ -32,52 +33,62 @@ const COORDINATE_EVIDENCE: Record<string, CoordinateEvidence> = {
   balaghat: {
     sourceLabel: "Mindat locality record",
     confidence: "public-source approximate",
-    validationEligible: true,
+    geometryStatus: "screening_only",
+    validationEligible: false,
   },
   ukwa: {
     sourceLabel: "Mindat locality record",
     confidence: "public-source approximate",
-    validationEligible: true,
+    geometryStatus: "screening_only",
+    validationEligible: false,
   },
   tirodi: {
     sourceLabel: "South Tirodi Mine locality record",
     confidence: "public mine locality",
-    validationEligible: true,
+    geometryStatus: "screening_only",
+    validationEligible: false,
   },
   chikla: {
     sourceLabel: "Mindat point + government mine report",
     confidence: "government-corroborated locality",
+    geometryStatus: "verified_point",
     validationEligible: true,
   },
   kandri: {
     sourceLabel: "Government forest-clearance mine report",
     confidence: "government report coordinate",
+    geometryStatus: "verified_point",
     validationEligible: true,
   },
   mansar: {
     sourceLabel: "ARMA 2018 published mine study",
     confidence: "published study center",
+    geometryStatus: "verified_point",
     validationEligible: true,
   },
   beldongri: {
     sourceLabel: "The Diggings / USGS locality record",
     confidence: "public-source approximate",
-    validationEligible: true,
+    geometryStatus: "screening_only",
+    validationEligible: false,
   },
   gumgaon: {
     sourceLabel: "Government lease envelope + locality point",
     confidence: "government-corroborated locality",
+    geometryStatus: "verified_envelope",
     validationEligible: true,
   },
   "dongri-buzurg": {
     sourceLabel: "Mindat mine locality + government mine plan",
     confidence: "public-source approximate",
-    validationEligible: true,
+    geometryStatus: "screening_only",
+    validationEligible: false,
   },
   sitapatore: {
     sourceLabel: "Mindat deposit point + MOIL unit register",
     confidence: "public-source approximate",
-    validationEligible: true,
+    geometryStatus: "screening_only",
+    validationEligible: false,
   },
 };
 
@@ -87,7 +98,7 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     name: "Balaghat (Bharveli)",
     district: "Balaghat, Madhya Pradesh",
     mineType: "Underground",
-    coordinateStatus: "public-source approximate",
+    coordinateStatus: "screening-only · approximate",
     latitude: 21.8,
     longitude: 80.18,
     depthM: 383,
@@ -100,7 +111,7 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     name: "Ukwa",
     district: "Balaghat, Madhya Pradesh",
     mineType: "Opencast",
-    coordinateStatus: "public-source approximate",
+    coordinateStatus: "screening-only · approximate",
     latitude: 21.97,
     longitude: 80.47,
     depthM: null,
@@ -113,7 +124,7 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     name: "Tirodi",
     district: "Balaghat, Madhya Pradesh",
     mineType: "Underground",
-    coordinateStatus: "public mine locality",
+    coordinateStatus: "screening-only · mine locality",
     latitude: 21.68333,
     longitude: 79.73333,
     depthM: null,
@@ -126,7 +137,7 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     name: "Chikla",
     district: "Bhandara, Maharashtra",
     mineType: "Underground",
-    coordinateStatus: "government-corroborated locality",
+    coordinateStatus: "verified point · government",
     latitude: 21.54333,
     longitude: 79.75389,
     depthM: null,
@@ -139,8 +150,8 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     name: "Kandri",
     district: "Nagpur, Maharashtra",
     mineType: "Underground",
-    coordinateStatus: "government report coordinate",
-    latitude: 21.4,
+    coordinateStatus: "verified point · government",
+    latitude: 21.4125,
     longitude: 79.266667,
     depthM: null,
     reserveConfidence: 0.58,
@@ -152,7 +163,7 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     name: "Munsar / Mansar",
     district: "Nagpur, Maharashtra",
     mineType: "Underground",
-    coordinateStatus: "published study center",
+    coordinateStatus: "verified point · study",
     latitude: 21.389444,
     longitude: 79.287222,
     depthM: null,
@@ -165,7 +176,7 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     name: "Beldongri",
     district: "Nagpur, Maharashtra",
     mineType: "Underground",
-    coordinateStatus: "public-source approximate",
+    coordinateStatus: "screening-only · approximate",
     latitude: 21.3495,
     longitude: 79.3003,
     depthM: null,
@@ -178,9 +189,9 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     name: "Gumgaon",
     district: "Nagpur, Maharashtra",
     mineType: "Underground",
-    coordinateStatus: "government-corroborated locality",
-    latitude: 21.39602,
-    longitude: 78.99197,
+    coordinateStatus: "verified envelope · government",
+    latitude: 21.401557,
+    longitude: 78.976669,
     depthM: null,
     reserveConfidence: 0.51,
     shortfallProbability: 0.38,
@@ -191,7 +202,7 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     name: "Dongri Buzurg",
     district: "Bhandara, Maharashtra",
     mineType: "Opencast",
-    coordinateStatus: "public-source approximate",
+    coordinateStatus: "screening-only · approximate",
     latitude: 21.548611,
     longitude: 79.682778,
     depthM: null,
@@ -204,7 +215,7 @@ const SYNTHETIC_DEMO_MINES: DemoMine[] = [
     name: "Sitapatore",
     district: "Bhandara, Maharashtra",
     mineType: "Underground",
-    coordinateStatus: "public-source approximate",
+    coordinateStatus: "screening-only · approximate",
     latitude: 21.66667,
     longitude: 79.66667,
     depthM: null,
@@ -314,7 +325,7 @@ function syntheticReserveValidation() {
     avg_percentile_rank: Number(average.toFixed(1)),
     per_mine: perMine,
     method:
-      "Leave-one-out percentile ranking on 10 source-backed mine locality points; nearest synthetic reserve cell sampled",
+      "Leave-one-out percentile ranking on 4 validated mine geometries; 6 screening-only locations excluded; nearest synthetic reserve cell sampled",
   };
 }
 
@@ -472,7 +483,7 @@ function toMineResponse(mine: Mine) {
     mine_type: mine.mineType,
     coordinate_status: mine.coordinateStatus,
     data_provenance: evidence
-      ? `synthetic_demo_mine_register · ${evidence.sourceLabel}`
+      ? `synthetic_demo_mine_register · ${evidence.sourceLabel} · ${evidence.confidence}`
       : "synthetic_demo_mine_register",
     latitude: mine.latitude,
     longitude: mine.longitude,
@@ -550,6 +561,10 @@ export function getLiveValidation() {
 
 export function getSyntheticValidation() {
   return syntheticReserveValidation();
+}
+
+export function getSyntheticReserveModelVersion() {
+  return RESERVE_MODEL_VERSION;
 }
 
 export function getLiveForecast(mineId: string, horizon: number) {

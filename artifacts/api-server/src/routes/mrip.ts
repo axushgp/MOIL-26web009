@@ -25,6 +25,7 @@ import {
   getLiveRecommendation,
   getLiveValidation,
   getSyntheticValidation,
+  getSyntheticReserveModelVersion,
   listLiveMines,
   listLiveReservePoints,
   getProductionHistory,
@@ -81,7 +82,7 @@ router.get("/reserves/heatmap", async (req, res, next) => {
     res.json(
       GetReserveHeatmapResponse.parse({
         points,
-        model_version: getDataMode().mode === "live" ? "live-bundle" : "fusion-v0.4",
+        model_version: getDataMode().mode === "live" ? "live-bundle" : getSyntheticReserveModelVersion(),
         computed_at: getDataMode().mode === "live" ? new Date().toISOString() : "2026-08-29T09:00:00.000Z",
       }),
     );
