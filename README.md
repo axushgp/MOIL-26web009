@@ -18,7 +18,7 @@ The scientific pipeline follows the specification:
 - `tests/` — Python unit and integration checks
 - `artifacts/moil-mrip/` and `artifacts/api-server/` — runnable Replit preview
 
-## Replit preview
+## Agent preview
 
 The preview is intentionally synthetic and fail-closed:
 
