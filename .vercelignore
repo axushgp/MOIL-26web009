@@ -1,0 +1,11 @@
+# The Vercel deployment uses the TypeScript Express function in api/index.ts.
+# Keep the separate Docker/FastAPI scientific service out of Vercel function
+# discovery; it remains available for the documented local scientific run.
+api/*.py
+api/Dockerfile
+requirements.txt
+db/
+ingestion/
+module1_reserve_mapping/
+module2_production_forecast/
+module3_recommendations/
