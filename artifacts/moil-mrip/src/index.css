@@ -65,3 +65,20 @@
 .skeleton { background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--card)) 50%, hsl(var(--muted)) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
 @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+/* Mission-control GIS layer */
+:root { --hud-ink: 198 43% 16%; --hud-cyan: 190 54% 42%; --hud-orange: 18 80% 52%; }
+body { background-image: radial-gradient(circle at 72% 8%, hsl(164 40% 36% / .035), transparent 28rem); }
+button, select, input { letter-spacing: .005em; }
+main { position: relative; }
+main::before { content: 'MOIL // EARTH OBSERVATION WORKSTATION'; position: fixed; right: 1.25rem; bottom: .75rem; z-index: 5; pointer-events: none; font: 700 8px/1 var(--app-font-mono); letter-spacing: .16em; color: hsl(var(--foreground) / .2); }
+.map-grid { background-color: hsl(194 32% 88%); background-image: linear-gradient(hsl(198 43% 26% / .11) 1px, transparent 1px), linear-gradient(90deg, hsl(198 43% 26% / .11) 1px, transparent 1px), radial-gradient(circle at 48% 52%, hsl(164 40% 36% / .18), transparent 34%); background-size: 32px 32px, 32px 32px, 100% 100%; }
+.dark .map-grid { background-color: hsl(198 27% 18%); background-image: linear-gradient(hsl(194 60% 60% / .1) 1px, transparent 1px), linear-gradient(90deg, hsl(194 60% 60% / .1) 1px, transparent 1px), radial-gradient(circle at 48% 52%, hsl(164 40% 44% / .2), transparent 34%); }
+.scanline { mix-blend-mode: multiply; opacity: .8; }
+.dark .scanline { mix-blend-mode: screen; opacity: .35; }
+.reveal { animation: rise .42s cubic-bezier(.2,.8,.2,1) both; }
+.rounded-lg { border-radius: .35rem; }
+.shadow-sm, [class*="shadow-[0_2px"] { box-shadow: 0 8px 24px hsl(198 43% 16% / .055); }
+@media (max-width: 640px) { main::before { display: none; } }
+
+@media (prefers-reduced-motion: reduce) { .reveal, .skeleton { animation: none !important; } }
